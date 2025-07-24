@@ -6,10 +6,12 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { PrimaryInputComponent } from '../../components/primary-input/primary-input.component';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { CommonModule } from '@angular/common'; // Adicionado, se necessário
-import { ApiService } from '../../services/api.service'; // Importar ApiService
-import { LoginRequest, LoginResponse } from '../../types/models'; // Importar LoginRequest
+import { CommonModule } from '@angular/common';
+import { ApiService } from '../../services/api.service';
+import { LoginRequest } from '../../types/models';
+import { AuthService } from '../../services/auth.service'; // <--- IMPORTADO AuthService
 
+// A interface LoginForm precisa ser exportada para ser usada no FormGroup
 export interface LoginForm {
   email: FormControl<string | null>;
   password: FormControl<string | null>;
@@ -19,7 +21,7 @@ export interface LoginForm {
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule, // Garante que CommonModule esteja importado
+    CommonModule,
     DefaultLoginLayoutComponent,
     ReactiveFormsModule,
     PrimaryInputComponent
@@ -33,16 +35,17 @@ export class LoginComponent {
   constructor(
     private router: Router,
     private toastService: ToastrService,
-    private apiService: ApiService // Injetar ApiService
+    private apiService: ApiService,
+    private authService: AuthService // <--- INJETADO AuthService
   ) {
     this.loginForm = new FormGroup<LoginForm>({
-      email: new FormControl('', [Validators.required, Validators.email]), // Removido valor fixo
-      password: new FormControl('', [Validators.required, Validators.minLength(6)]) // Removido valor fixo
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [Validators.required, Validators.minLength(6)])
     });
   }
 
   submit() {
-    this.loginForm.markAllAsTouched(); // Para exibir mensagens de erro
+    this.loginForm.markAllAsTouched();
 
     if (this.loginForm.invalid) {
       this.toastService.error("Por favor, preencha o email e a senha corretamente.");
@@ -51,31 +54,30 @@ export class LoginComponent {
 
     const credentials: LoginRequest = {
       email: this.loginForm.value.email ?? '',
-      senha: this.loginForm.value.password ?? '' // Mapear para 'senha' se o backend esperar isso
+      senha: this.loginForm.value.password ?? ''
     };
 
     this.apiService.authenticate(credentials).subscribe({
-      next: (response) => {
-        // Assumindo que o backend retorna "Autenticado com sucesso"
-        if (response === "Autenticado com sucesso") {
-            this.toastService.success("Login realizado com sucesso!");
-            // IMPORTANTE: Em um sistema real, você salvaria um token JWT aqui
-            // e então navegaria. Como é Basic Auth, estamos apenas navegando.
-            this.router.navigate(["/profile"]); // Navega para o dashboard/profile
+      next: (response) => { // response agora é do tipo LoginResponse
+        if (response.status === "Autenticado com sucesso" && response.moradorId && response.moradorNome) {
+            // SE O LOGIN FOI BEM-SUCEDIDO, CHAMA O MÉTODO login DO AUTHSERVICE
+            this.authService.login(response.moradorId, response.moradorNome);
+            this.toastService.success(`Login realizado com sucesso! Bem-vindo, ${response.moradorNome}!`);
+            this.router.navigate(["/profile"]); // Redireciona para o dashboard
         } else {
-            this.toastService.error("Credenciais inválidas ou erro desconhecido.");
+            // Trata casos onde o status não é sucesso, mas não houve erro HTTP (ex: credenciais inválidas)
+            this.toastService.error(response.status || "Credenciais inválidas ou erro desconhecido.");
         }
       },
       error: (err) => {
         console.error("Erro no login:", err);
         let errorMessage = "Erro na autenticação. Verifique suas credenciais.";
-        if (err && err.error) {
-            // Se o erro for uma string do backend (ex: "Credenciais inválidas")
-            if (typeof err.error === 'string') {
-                errorMessage = err.error;
-            } else if (err.error.message) { // Se for um objeto de erro do backend
-                errorMessage = err.error.message;
-            }
+        if (err && err.error && err.error.message) {
+             errorMessage = err.error.message;
+        } else if (err.error && typeof err.error === 'string') {
+             errorMessage = err.error;
+        } else if (err.status === 401) {
+             errorMessage = "Credenciais inválidas.";
         }
         this.toastService.error(errorMessage);
       }

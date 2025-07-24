@@ -1,5 +1,5 @@
 
-export type LoginResponse = {
+export type LoginResponse= {
     token: string,
     name: string
 }

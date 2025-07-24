@@ -1,15 +1,17 @@
+<!-- src/app/pages/profile/profile.component.html -->
+
 <app-navegador
   [title2]="'Olá, ' + nomeUsuario"
   primaryBtnText="Nova Conta"
   secondaryBtnText="Meu Perfil"
-  [routerLinkPrimary]="'/conta'"
-  [routerLinkSecondary]="'/meu-perfil'"
-></app-navegador>
+  (submitAction)="handlePrimaryNav()"
+  (navigateAction)="handleSecondaryNav()"
+></app-navegador>  <div class="page-content">
+  </div>
 
 <div class="page-content">
   <div *ngIf="isLoading" class="loading-state">
     <p>Carregando dados do dashboard...</p>
-    <!-- Você pode adicionar um componente de spinner aqui -->
   </div>
 
   <div *ngIf="error" class="error-state">
@@ -17,7 +19,7 @@
   </div>
 
   <div *ngIf="!isLoading && !error">
-    <h2 class="section-title">Visão Geral</h2>
+    <h2 class="section-title text-center">Visão Geral</h2>
     <div class="cards-container">
       <app-cards class="card-item">
         <h3 class="card-title">Total em Aberto</h3>
@@ -29,7 +31,20 @@
       </app-cards>
     </div>
 
-    <h2 class="section-title">Contas Pendentes</h2>
+    <h2 class="section-title text-center">Ações Rápidas</h2>
+    <div class="quick-actions-container">
+        <button class="btn-action" [routerLink]="'/conta'">
+            <span>Adicionar Nova Conta</span>
+        </button>
+        <button class="btn-action" [routerLink]="'/extrato'">
+            <span>Ver Extrato Completo</span>
+        </button>
+        <button class="btn-action" [routerLink]="'/saldos'">
+            <span>Ver Saldos Moradores</span>
+        </button>
+    </div>
+
+    <h2 class="section-title text-center">Contas Pendentes</h2>
     <div class="table-container">
       <div *ngIf="contasAbertas.length > 0; else noContas">
         <table>
@@ -39,6 +54,7 @@
               <th>Observação</th>
               <th>Vencimento</th>
               <th>Valor</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -47,6 +63,11 @@
               <td>{{ conta.observacao }}</td>
               <td>{{ conta.dataVencimento | date:'dd/MM/yyyy' }}</td>
               <td class="valor">{{ conta.valor | currency:'BRL' }}</td>
+              <td>
+                <button (click)="editConta(conta.id)" class="btn-edit" title="Editar Conta">
+                  <span>Editar</span>
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>

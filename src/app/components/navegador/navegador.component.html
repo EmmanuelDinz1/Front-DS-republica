@@ -1,28 +1,31 @@
 <nav class="navegador-container">
-  <div class="logo">
-    <span>{{ title }}</span>
+  <div class="left-section">
+    <div class="logo">
+      <span>{{ title }}</span>
+    </div>
   </div>
 
-  <div class="perfil" *ngIf="title2">
-    <span>{{ title2 }}</span>
+  <div class="center-section">
+    <div class="perfil" *ngIf="title2">
+      <span>{{ title2 }}</span>
+    </div>
   </div>
 
-  <div class="btn-wrapper" *ngIf="primaryBtnText">
-    <button
-      class="btn-primary"
-      [routerLink]="routerLinkPrimary"
-      [disabled]="disablePrimaryBtn"
-    >
-      {{ primaryBtnText }}
-    </button>
-  </div>
-
-  <div class="btn-wrapper2" *ngIf="secondaryBtnText">
-    <button
-      class="btn-secondary"
-      [routerLink]="routerLinkSecondary"
-    >
-      {{ secondaryBtnText }}
-    </button>
+  <div class="right-section">
+    <div class="btn-wrapper" *ngIf="primaryBtnText">
+      <button
+        class="btn-primary"
+        (click)="submit()" [disabled]="disablePrimaryBtn"
+      >
+        {{ primaryBtnText }}
+      </button>
+    </div>
+    <div class="btn-wrapper2" *ngIf="secondaryBtnText">
+      <button
+        class="btn-secondary"
+        (click)="navigate()" >
+        {{ secondaryBtnText }}
+      </button>
+    </div>
   </div>
 </nav>

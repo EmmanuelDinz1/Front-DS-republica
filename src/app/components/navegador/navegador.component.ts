@@ -18,14 +18,9 @@ export class NavegadorComponent {
   @Input() routerLinkPrimary: string | any[] | null = null;
   @Input() routerLinkSecondary: string | any[] | null = null;
 
-  @Output() primaryAction = new EventEmitter<void>();
-  @Output() secondaryAction = new EventEmitter<void>();
+@Output("submitAction") onSubmitAction = new EventEmitter<void>(); // <-- NOME CORRETO
+@Output("navigateAction") onNavigateAction = new EventEmitter<void>(); // <-- NOME CORRETO
 
-  submitPrimary() {
-    this.primaryAction.emit();
-  }
-
-  submitSecondary() {
-    this.secondaryAction.emit();
-  }
+submit(){ this.onSubmitAction.emit(); } // Emite o novo nome
+navigate(){ this.onNavigateAction.emit(); } // Emite o novo nome
 }

@@ -9,8 +9,8 @@ import {
     Conta, ContaDTO,
     TipoConta, TipoContaDTO,
     GastoPorTipo, Historico,
-    LoginRequest, // Importar LoginRequest
-    SaldoMoradorDTO // Importar SaldoMoradorDTO, pois você tem um método para ele
+    LoginRequest, LoginResponse, // <--- Importado LoginResponse
+    SaldoMoradorDTO
 } from '../types/models'; // Certifique-se de que todas essas interfaces estão no models.ts
 
 @Injectable({
@@ -44,10 +44,13 @@ export class ApiService {
         } else {
             // Erro do lado do servidor (resposta HTTP)
             // Se o back-end retornar uma mensagem de erro no corpo (string ou objeto com 'message')
-            if (error.error && typeof error.error === 'string') {
-                errorMessage = error.error; // Ex: "Credenciais inválidas" ou outra mensagem de erro do backend
-            } else if (error.error && error.error.message) {
-                errorMessage = error.error.message; // Para DTOs de erro mais complexos do backend
+            // LoginResponse agora é um objeto, então precisamos verificar se 'error.error' é um objeto.
+            if (error.error && typeof error.error === 'object' && error.error.status) {
+                // Se o backend retornou um ErroResposta DTO (com status, message, error)
+                errorMessage = error.error.message || `Erro do servidor (Status: ${error.error.status})`;
+            } else if (error.error && typeof error.error === 'string') {
+                // Se o backend retornou uma string simples de erro (menos comum agora com LoginResponseDTO)
+                errorMessage = error.error;
             } else if (error.status) {
                 errorMessage = `Código do erro: ${error.status}`;
                 if (error.statusText) {
@@ -171,19 +174,13 @@ export class ApiService {
     }
 
     // --- AUTENTICAÇÃO ENDPOINT (para /api/moradores/auth) ---
-    authenticate(credentials: LoginRequest): Observable<string> {
-        // Para o endpoint /api/moradores/auth (login), o backend não exige um cabeçalho 'Authorization' prévio
-        // (porque ele está permitAll() no SecurityConfig e você está enviando as credenciais no corpo).
-        // Se este endpoint fosse protegido por CORS, teríamos que garantir que 'Content-Type' fosse permitido.
+    // CORRIGIDO: Agora espera LoginResponse (objeto JSON)
+    authenticate(credentials: LoginRequest): Observable<LoginResponse> {
         const headers = new HttpHeaders({
             'Content-Type': 'application/json',
-            // NÃO inclua 'Authorization' aqui, pois é a própria autenticação que estamos fazendo.
-            // O backend autentica com base no email/senha do corpo da requisição.
         });
-
-        // O backend retorna uma String ("Autenticado com sucesso" ou "Credenciais inválidas")
-        // Usamos { responseType: 'text' as 'json' } para que o HttpClient não tente parsear como JSON por padrão.
-        return this.http.post(`${this.API_BASE_URL}/moradores/auth`, credentials, { headers, responseType: 'text' })
+        // REMOVIDO responseType: 'text' para que o HttpClient parseie o JSON
+        return this.http.post<LoginResponse>(`${this.API_BASE_URL}/moradores/auth`, credentials, { headers })
             .pipe(
                 catchError(this.handleError.bind(this))
             );

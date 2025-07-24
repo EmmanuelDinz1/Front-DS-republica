@@ -4,8 +4,9 @@ export interface LoginRequest {
 }
 
 export type LoginResponse = {
-    token: string,
-    name: string
+    status: string;
+    moradorId: number | null; // <--- PRECISA SER ASSIM
+    moradorNome: string | null;
 }
 
 // Arquivo: src/app/types/models.ts

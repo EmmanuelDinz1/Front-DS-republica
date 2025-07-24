@@ -18,16 +18,4 @@ describe('NavegadorComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  it('should emit "primary" on primary button click', () => {
-    spyOn(component.submit, 'emit');
-    component.submitPrimary();
-    expect(component.submit.emit).toHaveBeenCalledWith('primary');
-  });
-
-  it('should emit "secondary" on secondary button click', () => {
-    spyOn(component.submit, 'emit');
-    component.submitSecondary();
-    expect(component.submit.emit).toHaveBeenCalledWith('secondary');
-  });
 });

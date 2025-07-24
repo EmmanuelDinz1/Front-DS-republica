@@ -2,8 +2,8 @@
   [title2]="'Meu Perfil'"
   primaryBtnText="Dashboard"
   secondaryBtnText="Nova Conta"
-  [routerLinkPrimary]="'/profile'"
-  [routerLinkSecondary]="'/conta'"
+  (submitAction)="handlePrimaryNav()"
+  (navigateAction)="handleSecondaryNav()"
 ></app-navegador>
 
 <div *ngIf="isLoading; else formContent" class="loading-state">

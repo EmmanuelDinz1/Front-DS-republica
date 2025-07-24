@@ -1,29 +1,59 @@
-import { Component, OnInit } from '@angular/core';
+// src/app/pages/meu-perfil/meu-perfil.component.ts
+
+import { Component, OnInit, OnDestroy } from '@angular/core'; // Adicionado OnDestroy
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { NavegadorComponent } from '../../components/navegador/navegador.component';
 import { ApiService } from '../../services/api.service';
 import { Morador, MoradorDTO } from '../../types/models';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../services/auth.service'; // <--- Importar AuthService
+import { Subscription } from 'rxjs'; // <--- Importar Subscription
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-meu-perfil',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavegadorComponent],
+  imports: [CommonModule, ReactiveFormsModule, NavegadorComponent, RouterModule],
   templateUrl: './meu-perfil.component.html',
   styleUrls: ['./meu-perfil.component.scss']
 })
-export class MeuperfilComponent implements OnInit {
+export class MeuperfilComponent implements OnInit, OnDestroy { // Implementar OnDestroy
   
   perfilForm!: FormGroup;
   isLoading = true;
-  moradorId: number = 1; // ID fixo, pois não temos um sistema de login real
+  moradorId: number | null = null; // <--- AGORA PODE SER NULL
+  private authSubscription: Subscription | undefined; // <--- Para gerenciar a inscrição
 
-  constructor(private apiService: ApiService, private toastr: ToastrService) {}
+  constructor(
+    private router: Router,
+    private apiService: ApiService,
+    private toastr: ToastrService,
+    private authService: AuthService // <--- Injetar AuthService
+  ) {}
 
   ngOnInit(): void {
     this.iniciarFormulario();
-    this.carregarDadosMorador();
+    // Se inscrever para receber o ID do morador logado
+    this.authSubscription = this.authService.moradorId$.subscribe(id => {
+      this.moradorId = id;
+      if (this.moradorId) { // Só carrega os dados se tiver um ID de morador
+        this.carregarDadosMorador();
+      } else {
+        // Se não houver ID (não logado ou deslogou), desabilita carregamento e mostra erro
+        this.toastr.error('Nenhum morador logado para carregar o perfil.');
+        this.isLoading = false;
+        // Opcional: redirecionar para a tela de login
+        // this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  // <--- NOVO: Método para desinscrever do Observable ao destruir o componente
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 
   iniciarFormulario(morador?: Morador): void {
@@ -38,10 +68,16 @@ export class MeuperfilComponent implements OnInit {
   }
   
   carregarDadosMorador(): void {
-    // NOTA: Em uma aplicação real, o ID do morador viria de um serviço de autenticação
-    // após o login. Como não temos isso, estamos usando um ID fixo (1).
+    // A NOTA agora se refere a como o ID é obtido dinamicamente.
+    // O ID do morador vem do AuthService.
+    if (!this.moradorId) {
+      this.toastr.error('ID do morador não disponível para carregar perfil.');
+      this.isLoading = false;
+      return;
+    }
+
     this.isLoading = true;
-    this.apiService.getMoradorById(this.moradorId).subscribe({
+    this.apiService.getMoradorById(this.moradorId).subscribe({ // Usa o ID dinâmico
       next: (data) => {
         this.iniciarFormulario(data);
         this.isLoading = false;
@@ -60,15 +96,23 @@ export class MeuperfilComponent implements OnInit {
       return;
     }
 
+    if (!this.moradorId) { // Garante que há um ID para atualizar
+      this.toastr.error('Não foi possível atualizar o perfil: ID do morador não encontrado.');
+      return;
+    }
+
     const formData = this.perfilForm.value;
     const moradorDto: MoradorDTO = {
+      // Data de nascimento precisa ser string no formato ISO para o backend
       ...formData,
-      dataNascimento: new Date(formData.dataNascimento).toISOString()
+      dataNascimento: new Date(formData.dataNascimento).toISOString().split('T')[0] // Garante formato YYYY-MM-DD
     };
     
-    this.apiService.updateMorador(this.moradorId, moradorDto).subscribe({
+    this.apiService.updateMorador(this.moradorId, moradorDto).subscribe({ // Usa o ID dinâmico
       next: () => {
         this.toastr.success('Perfil atualizado com sucesso!');
+        // Opcional: Atualizar o nome no AuthService caso o nome tenha sido alterado
+        this.authService.login(this.moradorId!, moradorDto.nome ?? ''); 
       },
       error: (err) => {
         this.toastr.error('Falha ao atualizar o perfil.');
@@ -89,5 +133,15 @@ export class MeuperfilComponent implements OnInit {
 
   desativarConta(): void {
     this.toastr.warning('Cuidado! Ação de desativar a conta não pode ser desfeita.');
+    // Aqui você adicionaria a lógica para chamar a API para desativar a conta
+  }
+  handlePrimaryNav(): void {
+    this.router.navigate(['/profile']); // Navega para a rota de criação de conta
+  }
+
+  // Lida com a ação do botão secundário do navegador (Ex: Meu Perfil)
+  handleSecondaryNav(): void {
+    this.router.navigate(['/profile']); // Navega para a rota do perfil do usuário
   }
 }
+

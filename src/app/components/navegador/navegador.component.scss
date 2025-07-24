@@ -1,101 +1,104 @@
+/* src/app/components/navegador/navegador.component.scss */
+
 @import "../../../styles/variables.scss";
 
 .navegador-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
-  background-color: white;
-  border-bottom: 1px solid #e0e0e0;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background-color: $secondary-color;
+  color: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  width: 100%;
+}
+
+.left-section {
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-start;
 
   .logo {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-
     span {
-      font-size: 14px;
-      font-weight: 600;
-      color: $secondary-color;
-      border-left: 1px solid #ccc;
-      padding-left: 12px;
+      font-size: 1.8em;
+      font-weight: bold;
+      color: $primary-color;
+      white-space: nowrap;
     }
-
-    img {
-      height: 28px;
-      width: auto;
-    }
-  }
-
-  .perfil {
-  display: flex;
-  align-items: center;
-  justify-content: center; // 🔹 Centraliza horizontalmente
-  gap: 16px; // 🔹 Corrigido: antes estava só "30"
-  height: 100%; // 🔹 Garante altura para centralização vertical, se necessário
-
-  span {
-    font-size: 20px;
-    font-weight: 1000;
-    color: $secondary-color;
-    text-align: center; // 🔹 Garante alinhamento do texto dentro do `span`
   }
 }
 
-  .btn-wrapper,
-  .btn-wrapper2 {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
+.center-section {
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: auto; /* Permite que o conteúdo defina a largura, mas sem crescer muito */
+  display: flex; /* Adicionado: Para centralizar o conteúdo interno */
+  justify-content: center; /* Adicionado: Centraliza horizontalmente */
+  align-items: center; /* Adicionado: Centraliza verticalmente (se houver altura diferente) */
+  padding: 0 20px; /* Adicionado: Um pouco de padding para "aumentar" visualmente o espaço */
 
-  .btn-primary,
-  .btn-secondary {
-    padding: 8px 20px;
-    font-size: 14px;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    border: none;
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+  .perfil {
+    span {
+      font-size: 1.3em; /* Aumentado: Texto um pouco maior */
+      font-weight: 500;
+      white-space: nowrap;
     }
   }
+}
 
-  .btn-primary {
-    background-color: $primary-color;
-    color: white;
+.right-section {
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
 
-    &:hover:not(:disabled) {
-      background-color: darken($primary-color, 5%);
+  .btn-wrapper, .btn-wrapper2 {
+    button {
+      background-color: $primary-color;
+      color: white;
+      font-weight: 600;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: darken($primary-color, 5%);
+      }
     }
-  }
-
-  .btn-secondary {
-    background-color: white;
-    border: 1px solid $primary-color;
-    color: $primary-color;
-
-    &:hover:not(:disabled) {
+    .btn-secondary {
       background-color: $gray-secondary-bg;
+      color: $secondary-color;
+      &:hover {
+        background-color: darken($gray-secondary-bg, 5%);
+        color: $primary-color;
+      }
     }
   }
+}
 
-  .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #999;
-    color: white;
-    display: flex;
+/* Responsividade para o Navegador */
+@media (max-width: 768px) {
+  .navegador-container {
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    padding: 10px 15px;
+    
+    .left-section, .center-section, .right-section {
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 10px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .right-section {
+      flex-direction: column;
+      gap: 10px;
+    }
   }
 }
