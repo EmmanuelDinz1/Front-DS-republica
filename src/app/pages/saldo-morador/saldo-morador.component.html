@@ -1,0 +1,44 @@
+<app-navegador
+    title2="Saldos dos Moradores"
+    primaryBtnText="Dashboard"
+    secondaryBtnText="Nova Conta"
+    [routerLinkPrimary]="'/profile'"
+    [routerLinkSecondary]="'/conta'"
+></app-navegador>
+
+<div class="page-content">
+    <div *ngIf="isLoading" class="loading-state">
+        <p>Carregando saldos...</p>
+        </div>
+
+    <div *ngIf="error" class="error-state">
+        <p>{{ error }}</p>
+        <button (click)="carregarSaldos()">Tentar Novamente</button>
+    </div>
+
+    <div *ngIf="!isLoading && !error" class="saldos-container">
+        <h2 class="section-title">Saldo de Moradores</h2>
+
+        <div *ngIf="saldos.length > 0; else noSaldos" class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Morador</th>
+                        <th>Saldo Devedor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let saldo of saldos">
+                        <td>{{ saldo.nome }}</td>
+                        <td [ngClass]="{'saldo-positivo': saldo.saldoDevedor === 0, 'saldo-negativo': saldo.saldoDevedor > 0}">
+                            {{ saldo.saldoDevedor | currency:'BRL' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <ng-template #noSaldos>
+            <p class="empty-state">Nenhum saldo encontrado no momento.</p>
+        </ng-template>
+    </div>
+</div>

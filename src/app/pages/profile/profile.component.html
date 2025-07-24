@@ -1,0 +1,59 @@
+<app-navegador
+  [title2]="'Olá, ' + nomeUsuario"
+  primaryBtnText="Nova Conta"
+  secondaryBtnText="Meu Perfil"
+  [routerLinkPrimary]="'/conta'"
+  [routerLinkSecondary]="'/meu-perfil'"
+></app-navegador>
+
+<div class="page-content">
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Carregando dados do dashboard...</p>
+    <!-- Você pode adicionar um componente de spinner aqui -->
+  </div>
+
+  <div *ngIf="error" class="error-state">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!isLoading && !error">
+    <h2 class="section-title">Visão Geral</h2>
+    <div class="cards-container">
+      <app-cards class="card-item">
+        <h3 class="card-title">Total em Aberto</h3>
+        <p class="card-value-danger">{{ totalAberto | currency:'BRL' }}</p>
+      </app-cards>
+      <app-cards class="card-item">
+        <h3 class="card-title">Contas Abertas</h3>
+        <p class="card-value">{{ contasAbertas.length }}</p>
+      </app-cards>
+    </div>
+
+    <h2 class="section-title">Contas Pendentes</h2>
+    <div class="table-container">
+      <div *ngIf="contasAbertas.length > 0; else noContas">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Observação</th>
+              <th>Vencimento</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let conta of contasAbertas">
+              <td>{{ conta.tipoConta.descricao }}</td>
+              <td>{{ conta.observacao }}</td>
+              <td>{{ conta.dataVencimento | date:'dd/MM/yyyy' }}</td>
+              <td class="valor">{{ conta.valor | currency:'BRL' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ng-template #noContas>
+        <p class="empty-state">Nenhuma conta pendente. Bom trabalho!</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

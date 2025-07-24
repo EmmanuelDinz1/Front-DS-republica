@@ -1,0 +1,118 @@
+<app-default-login-layout
+    title="Crie sua conta no SGR!"
+    primaryBtnText="Cadastrar"
+    secondaryBtnText="Já tenho conta"
+    (submit)="submit()"
+    (navigate)="navigate()"
+    [disablePrimaryBtn]="!signupForm.valid"
+>
+    <form [formGroup]="signupForm">
+        <app-primary-input
+            formControlName="name"
+            inputName="name"
+            type="text"
+            label="Seu nome completo"
+            placeholder="João da Silva"
+        >
+            <img src="/assets/svg/user-icon.svg"/>
+        </app-primary-input>
+        <div *ngIf="signupForm.get('name')?.invalid && signupForm.get('name')?.touched" class="error-message">
+            <span *ngIf="signupForm.get('name')?.errors?.['required']">O nome é obrigatório.</span>
+            <span *ngIf="signupForm.get('name')?.errors?.['minlength']">O nome deve ter no mínimo 3 caracteres.</span>
+        </div>
+
+        <app-primary-input
+            formControlName="email"
+            inputName="email"
+            type="email"
+            label="Email"
+            placeholder="joao.silva@email.com"
+        >
+            <img src="/assets/svg/email-icon.svg"/>
+        </app-primary-input>
+        <div *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched" class="error-message">
+            <span *ngIf="signupForm.get('email')?.errors?.['required']">O email é obrigatório.</span>
+            <span *ngIf="signupForm.get('email')?.errors?.['email']">Por favor, insira um email válido.</span>
+        </div>
+
+        <app-primary-input
+            formControlName="password"
+            inputName="password"
+            type="password"
+            label="Sua senha"
+            placeholder="Mínimo 6 caracteres"
+        >
+            <img src="/assets/svg/password-icon.svg"/>
+        </app-primary-input>
+        <div *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched" class="error-message">
+            <span *ngIf="signupForm.get('password')?.errors?.['required']">A senha é obrigatória.</span>
+            <span *ngIf="signupForm.get('password')?.errors?.['minlength']">A senha deve ter no mínimo 6 caracteres.</span>
+        </div>
+
+        <app-primary-input
+            formControlName="passwordConfirm"
+            inputName="passwordConfirm"
+            type="password"
+            label="Confirme sua senha"
+            placeholder="Repita a senha"
+        >
+            <img src="/assets/svg/password-icon.svg"/>
+        </app-primary-input>
+        <div *ngIf="signupForm.get('passwordConfirm')?.invalid && signupForm.get('passwordConfirm')?.touched" class="error-message">
+            <span *ngIf="signupForm.get('passwordConfirm')?.errors?.['required']">A confirmação da senha é obrigatória.</span>
+            <span *ngIf="signupForm.get('passwordConfirm')?.errors?.['minlength']">A confirmação da senha deve ter no mínimo 6 caracteres.</span>
+        </div>
+
+        <app-primary-input
+            formControlName="dataNascimento"
+            inputName="dataNascimento"
+            type="date"
+            label="Data de Nascimento"
+        >
+            <img src="/assets/svg/calendar-icon.svg"/>
+        </app-primary-input>
+        <div *ngIf="signupForm.get('dataNascimento')?.invalid && signupForm.get('dataNascimento')?.touched" class="error-message">
+            <span *ngIf="signupForm.get('dataNascimento')?.errors?.['required']">A data de nascimento é obrigatória.</span>
+        </div>
+
+        <app-primary-input
+            formControlName="cpf"
+            inputName="cpf"
+            type="text"
+            label="CPF"
+            placeholder="000.000.000-00"
+        >
+            <img src="/assets/svg/id-card-icon.svg"/>
+        </app-primary-input>
+        <div *ngIf="signupForm.get('cpf')?.invalid && signupForm.get('cpf')?.touched" class="error-message">
+            <span *ngIf="signupForm.get('cpf')?.errors?.['required']">O CPF é obrigatório.</span>
+        </div>
+
+        <app-primary-input
+            formControlName="celular"
+            inputName="celular"
+            type="text"
+            label="Celular"
+            placeholder="(XX) XXXXX-XXXX"
+        >
+            <img src="/assets/svg/phone-icon.svg"/>
+        </app-primary-input>
+        <div *ngIf="signupForm.get('celular')?.invalid && signupForm.get('celular')?.touched" class="error-message">
+            <span *ngIf="signupForm.get('celular')?.errors?.['required']">O celular é obrigatório.</span>
+        </div>
+
+        <app-primary-input
+            formControlName="contatosFamilia"
+            inputName="contatosFamilia"
+            type="text"
+            label="Contatos de Família (Nome/Telefone)"
+            placeholder="Maria (31) 98765-4321, João (31) 91234-5678"
+        >
+            <img src="/assets/svg/family-icon.svg"/>
+        </app-primary-input>
+        <div *ngIf="signupForm.get('contatosFamilia')?.invalid && signupForm.get('contatosFamilia')?.touched" class="error-message">
+            <span *ngIf="signupForm.get('contatosFamilia')?.errors?.['required']">Os contatos de família são obrigatórios.</span>
+            <span *ngIf="signupForm.get('contatosFamilia')?.errors?.['minlength']">Os contatos de família devem ter no mínimo 3 caracteres.</span>
+        </div>
+    </form>
+</app-default-login-layout>

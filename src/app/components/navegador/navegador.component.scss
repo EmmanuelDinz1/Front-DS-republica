@@ -1,0 +1,101 @@
+@import "../../../styles/variables.scss";
+
+.navegador-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    span {
+      font-size: 14px;
+      font-weight: 600;
+      color: $secondary-color;
+      border-left: 1px solid #ccc;
+      padding-left: 12px;
+    }
+
+    img {
+      height: 28px;
+      width: auto;
+    }
+  }
+
+  .perfil {
+  display: flex;
+  align-items: center;
+  justify-content: center; // 🔹 Centraliza horizontalmente
+  gap: 16px; // 🔹 Corrigido: antes estava só "30"
+  height: 100%; // 🔹 Garante altura para centralização vertical, se necessário
+
+  span {
+    font-size: 20px;
+    font-weight: 1000;
+    color: $secondary-color;
+    text-align: center; // 🔹 Garante alinhamento do texto dentro do `span`
+  }
+}
+
+  .btn-wrapper,
+  .btn-wrapper2 {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 8px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border: none;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-primary {
+    background-color: $primary-color;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 5%);
+    }
+  }
+
+  .btn-secondary {
+    background-color: white;
+    border: 1px solid $primary-color;
+    color: $primary-color;
+
+    &:hover:not(:disabled) {
+      background-color: $gray-secondary-bg;
+    }
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #999;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  }
+}

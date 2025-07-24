@@ -1,0 +1,92 @@
+/* src/app/pages/saldo-morador/saldo-morador.component.scss */
+
+@import "../../../styles/variables.scss";
+// Ajuste o caminho se necessário
+
+.page-content {
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.loading-state, .error-state, .empty-state {
+    text-align: center;
+    padding: 30px;
+    font-size: 1.1em;
+    color: $text-color;
+}
+
+.error-state {
+    color: $danger-color; // Defina $danger-color em variables.scss
+    button {
+        background-color: $primary-color;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        &:hover {
+            background-color: darken($primary-color, 5%);
+        }
+    }
+}
+
+.section-title {
+    color: $secondary-color; // Defina $secondary-color em variables.scss
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.8em;
+}
+
+.table-container {
+    overflow-x: auto; // Garante que a tabela seja responsiva em telas pequenas
+    margin-top: 20px;
+    border: 1px solid $border-color; // Defina $border-color em variables.scss
+    border-radius: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 300px; // Garante uma largura mínima para a tabela
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid $border-color;
+}
+
+thead th {
+    background-color: $gray-secondary-bg; // Defina $gray-secondary-bg em variables.scss
+    color: $secondary-color;
+    font-weight: 600;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.saldo-positivo {
+    color: $success-color; // Defina $success-color (verde)
+    font-weight: bold;
+}
+
+.saldo-negativo {
+    color: $danger-color; // Defina $danger-color (vermelho)
+    font-weight: bold;
+}
+
+// Para moedas, garantir que fique alinhado
+td.saldo-negativo, td.saldo-positivo {
+    text-align: right;
+    font-family: 'monospace'; // Para alinhar o símbolo da moeda
+}
