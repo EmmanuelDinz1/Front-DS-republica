@@ -8,10 +8,9 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { LoginRequest } from '../../types/models';
-import { AuthService } from '../../services/auth.service'; // <--- IMPORTADO AuthService
+import { LoginRequest, LoginResponse } from '../../types/models';
+import { AuthService } from '../../services/auth.service';
 
-// A interface LoginForm precisa ser exportada para ser usada no FormGroup
 export interface LoginForm {
   email: FormControl<string | null>;
   password: FormControl<string | null>;
@@ -20,12 +19,7 @@ export interface LoginForm {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    CommonModule,
-    DefaultLoginLayoutComponent,
-    ReactiveFormsModule,
-    PrimaryInputComponent
-  ],
+  imports: [CommonModule, DefaultLoginLayoutComponent, ReactiveFormsModule, PrimaryInputComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -36,7 +30,7 @@ export class LoginComponent {
     private router: Router,
     private toastService: ToastrService,
     private apiService: ApiService,
-    private authService: AuthService // <--- INJETADO AuthService
+    private authService: AuthService
   ) {
     this.loginForm = new FormGroup<LoginForm>({
       email: new FormControl('', [Validators.required, Validators.email]),
@@ -58,27 +52,23 @@ export class LoginComponent {
     };
 
     this.apiService.authenticate(credentials).subscribe({
-      next: (response) => { // response agora é do tipo LoginResponse
-        if (response.status === "Autenticado com sucesso" && response.moradorId && response.moradorNome) {
-            // SE O LOGIN FOI BEM-SUCEDIDO, CHAMA O MÉTODO login DO AUTHSERVICE
-            this.authService.login(response.moradorId, response.moradorNome);
+      next: (response: LoginResponse) => {
+        // response agora é do tipo LoginResponse (com token)
+        if (response.status === "Autenticado com sucesso" && response.moradorId && response.moradorNome && response.token) {
+            // Chama o login do AuthService com o token
+            this.authService.login(response.moradorId, response.moradorNome, response.token); // <--- AGORA PASSA O TOKEN
             this.toastService.success(`Login realizado com sucesso! Bem-vindo, ${response.moradorNome}!`);
-            this.router.navigate(["/profile"]); // Redireciona para o dashboard
+            this.router.navigate(["/profile"]);
         } else {
-            // Trata casos onde o status não é sucesso, mas não houve erro HTTP (ex: credenciais inválidas)
             this.toastService.error(response.status || "Credenciais inválidas ou erro desconhecido.");
         }
       },
       error: (err) => {
         console.error("Erro no login:", err);
         let errorMessage = "Erro na autenticação. Verifique suas credenciais.";
-        if (err && err.error && err.error.message) {
-             errorMessage = err.error.message;
-        } else if (err.error && typeof err.error === 'string') {
-             errorMessage = err.error;
-        } else if (err.status === 401) {
-             errorMessage = "Credenciais inválidas.";
-        }
+        if (err && err.error && err.error.message) { errorMessage = err.error.message; }
+        else if (err.error && typeof err.error === 'string') { errorMessage = err.error; }
+        else if (err.status === 401) { errorMessage = "Credenciais inválidas."; }
         this.toastService.error(errorMessage);
       }
     });

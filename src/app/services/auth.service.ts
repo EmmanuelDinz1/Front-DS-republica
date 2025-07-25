@@ -1,58 +1,52 @@
 // src/app/services/auth.service.ts
+
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // BehaviorSubject para manter o nome do usuário logado e emitir para quem se inscrever
   private _moradorNome = new BehaviorSubject<string | null>(null);
-  // BehaviorSubject para manter o ID do usuário logado
   private _moradorId = new BehaviorSubject<number | null>(null);
+  private _moradorToken = new BehaviorSubject<string | null>(null); // <--- NOVO: Token JWT
 
-  // Observable público para o nome do usuário
   moradorNome$: Observable<string | null> = this._moradorNome.asObservable();
-  // Observable público para o ID do usuário
   moradorId$: Observable<number | null> = this._moradorId.asObservable();
+  moradorToken$: Observable<string | null> = this._moradorToken.asObservable(); // <--- NOVO Observable para o token
 
   constructor() {
-    // Tenta carregar o nome e ID do localStorage ao iniciar o serviço (se o usuário recarregar a página)
     const storedName = localStorage.getItem('moradorNome');
     const storedId = localStorage.getItem('moradorId');
-    if (storedName) {
-      this._moradorNome.next(storedName);
-    }
-    if (storedId) {
-      this._moradorId.next(parseInt(storedId, 10));
-    }
+    const storedToken = localStorage.getItem('moradorToken'); // <--- NOVO
+
+    if (storedName) { this._moradorNome.next(storedName); }
+    if (storedId) { this._moradorId.next(parseInt(storedId, 10)); }
+    if (storedToken) { this._moradorToken.next(storedToken); } // <--- NOVO
   }
 
-  // Método para definir o usuário logado
-  login(id: number, nome: string): void {
+  // Método para definir o usuário logado com o TOKEN JWT
+  login(id: number, nome: string, token: string): void { // <--- Adicionado 'token' como argumento
     this._moradorId.next(id);
     this._moradorNome.next(nome);
-    localStorage.setItem('moradorId', id.toString()); // Salva no localStorage
-    localStorage.setItem('moradorNome', nome); // Salva no localStorage
-    // IMPORTANTE: Em um sistema real, aqui você também salvaria o token JWT.
+    this._moradorToken.next(token); // <--- NOVO
+
+    localStorage.setItem('moradorId', id.toString());
+    localStorage.setItem('moradorNome', nome);
+    localStorage.setItem('moradorToken', token); // <--- NOVO
   }
 
-  // Método para fazer logout
   logout(): void {
     this._moradorId.next(null);
     this._moradorNome.next(null);
-    localStorage.removeItem('moradorId'); // Remove do localStorage
-    localStorage.removeItem('moradorNome'); // Remove do localStorage
-    // IMPORTANTE: Remove o token JWT também.
+    this._moradorToken.next(null); // <--- NOVO
+
+    localStorage.removeItem('moradorId');
+    localStorage.removeItem('moradorNome');
+    localStorage.removeItem('moradorToken'); // <--- NOVO
   }
 
-  // Getter para o nome atual do morador (síncrono)
-  getMoradorNome(): string | null {
-    return this._moradorNome.getValue();
-  }
-
-  // Getter para o ID atual do morador (síncrono)
-  getMoradorId(): number | null {
-    return this._moradorId.getValue();
-  }
+  getMoradorNome(): string | null { return this._moradorNome.getValue(); }
+  getMoradorId(): number | null { return this._moradorId.getValue(); }
+  getToken(): string | null { return this._moradorToken.getValue(); } // <--- NOVO GETTER para o token
 }

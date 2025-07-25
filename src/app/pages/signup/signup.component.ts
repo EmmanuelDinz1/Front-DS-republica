@@ -90,7 +90,6 @@ export class SignUpComponent {
     this.apiService.createMorador(moradorData).subscribe({
       next: () => {
         this.toastService.success("Cadastro realizado com sucesso!");
-        this.router.navigate(["/profile"]);
       },
       error: (err) => {
         console.error("Erro no cadastro:", err);

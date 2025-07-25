@@ -3,10 +3,11 @@ export interface LoginRequest {
     senha: string; // Ou 'password' se o backend esperar 'password'
 }
 
-export type LoginResponse = {
+export interface LoginResponse {
     status: string;
-    moradorId: number | null; // <--- PRECISA SER ASSIM
+    moradorId: number | null;
     moradorNome: string | null;
+    token: string; // <--- GARANTA QUE ESTE CAMPO 'token' ESTÁ AQUI COM TIPO 'string'
 }
 
 // Arquivo: src/app/types/models.ts

@@ -1,15 +1,17 @@
 // src/app/pages/meu-perfil/meu-perfil.component.ts
 
-import { Component, OnInit, OnDestroy } from '@angular/core'; // Adicionado OnDestroy
+// src/app/pages/meu-perfil/meu-perfil.component.ts
+
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { NavegadorComponent } from '../../components/navegador/navegador.component';
 import { ApiService } from '../../services/api.service';
 import { Morador, MoradorDTO } from '../../types/models';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from '../../services/auth.service'; // <--- Importar AuthService
-import { Subscription } from 'rxjs'; // <--- Importar Subscription
-import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-meu-perfil',
@@ -18,38 +20,33 @@ import { RouterModule, Router } from '@angular/router';
   templateUrl: './meu-perfil.component.html',
   styleUrls: ['./meu-perfil.component.scss']
 })
-export class MeuperfilComponent implements OnInit, OnDestroy { // Implementar OnDestroy
+export class MeuperfilComponent implements OnInit, OnDestroy {
   
   perfilForm!: FormGroup;
   isLoading = true;
-  moradorId: number | null = null; // <--- AGORA PODE SER NULL
-  private authSubscription: Subscription | undefined; // <--- Para gerenciar a inscrição
+  moradorId: number | null = null;
+  private authSubscription: Subscription | undefined;
 
   constructor(
     private router: Router,
     private apiService: ApiService,
     private toastr: ToastrService,
-    private authService: AuthService // <--- Injetar AuthService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.iniciarFormulario();
-    // Se inscrever para receber o ID do morador logado
     this.authSubscription = this.authService.moradorId$.subscribe(id => {
       this.moradorId = id;
-      if (this.moradorId) { // Só carrega os dados se tiver um ID de morador
+      if (this.moradorId) {
         this.carregarDadosMorador();
       } else {
-        // Se não houver ID (não logado ou deslogou), desabilita carregamento e mostra erro
         this.toastr.error('Nenhum morador logado para carregar o perfil.');
         this.isLoading = false;
-        // Opcional: redirecionar para a tela de login
-        // this.router.navigate(['/login']);
       }
     });
   }
 
-  // <--- NOVO: Método para desinscrever do Observable ao destruir o componente
   ngOnDestroy(): void {
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
@@ -64,12 +61,13 @@ export class MeuperfilComponent implements OnInit, OnDestroy { // Implementar On
       dataNascimento: new FormControl(this.formatDate(morador?.dataNascimento), [Validators.required]),
       celular: new FormControl(morador?.celular || '', [Validators.required]),
       contatosFamilia: new FormControl(morador?.contatosFamilia || ''),
+      // Adicionado um FormControl para a senha, mesmo que desabilitado no HTML, para capturar o valor
+      // Ele não é 'required' porque a senha não é sempre atualizada
+      senha: new FormControl('') // <--- ADICIONADO: Campo para a senha (pode ser vazio se não for alterada)
     });
   }
   
   carregarDadosMorador(): void {
-    // A NOTA agora se refere a como o ID é obtido dinamicamente.
-    // O ID do morador vem do AuthService.
     if (!this.moradorId) {
       this.toastr.error('ID do morador não disponível para carregar perfil.');
       this.isLoading = false;
@@ -77,7 +75,7 @@ export class MeuperfilComponent implements OnInit, OnDestroy { // Implementar On
     }
 
     this.isLoading = true;
-    this.apiService.getMoradorById(this.moradorId).subscribe({ // Usa o ID dinâmico
+    this.apiService.getMoradorById(this.moradorId).subscribe({
       next: (data) => {
         this.iniciarFormulario(data);
         this.isLoading = false;
@@ -91,28 +89,47 @@ export class MeuperfilComponent implements OnInit, OnDestroy { // Implementar On
   }
 
   salvar(): void {
+    // Para a senha, se o campo for vazio (não alterado), não o inclua no DTO
+    const currentPassword = this.perfilForm.get('senha')?.value;
+    if (currentPassword === '') {
+      this.perfilForm.get('senha')?.disable(); // Desabilita para que o valor não seja incluído no .value
+    }
+
     if (this.perfilForm.invalid) {
       this.toastr.warning('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
-    if (!this.moradorId) { // Garante que há um ID para atualizar
+    if (!this.moradorId) {
       this.toastr.error('Não foi possível atualizar o perfil: ID do morador não encontrado.');
       return;
     }
 
-    const formData = this.perfilForm.value;
+    const formData = this.perfilForm.value; // Pega os valores do formulário (senha estará vazia se desabilitada)
     const moradorDto: MoradorDTO = {
-      // Data de nascimento precisa ser string no formato ISO para o backend
-      ...formData,
-      dataNascimento: new Date(formData.dataNascimento).toISOString().split('T')[0] // Garante formato YYYY-MM-DD
+      nome: formData.nome ?? '',
+      email: formData.email ?? '',
+      cpf: formData.cpf ?? '',
+      dataNascimento: new Date(formData.dataNascimento).toISOString().split('T')[0],
+      celular: formData.celular ?? '',
+      contatosFamilia: formData.contatosFamilia ?? '',
+      // APENAS INCLUI A SENHA SE ELA FOI PREENCHIDA NO FORMULÁRIO (ou seja, não é vazia)
+      senha: currentPassword && currentPassword !== '' ? currentPassword : undefined // <--- AQUI GARANTIMOS QUE A SENHA SÓ É ENVIADA SE ALTERADA
     };
-    
-    this.apiService.updateMorador(this.moradorId, moradorDto).subscribe({ // Usa o ID dinâmico
+
+    // Re-habilita o campo de senha se foi desabilitado, para permitir nova edição
+    this.perfilForm.get('senha')?.enable();
+
+    this.apiService.updateMorador(this.moradorId, moradorDto).subscribe({
       next: () => {
         this.toastr.success('Perfil atualizado com sucesso!');
-        // Opcional: Atualizar o nome no AuthService caso o nome tenha sido alterado
-        this.authService.login(this.moradorId!, moradorDto.nome ?? ''); 
+        // ATUALIZA O AUTHSERVICE COM OS NOVOS DADOS (incluindo o email e a senha se foi alterada)
+        // Se a senha não foi alterada (currentPassword é vazio), pegamos a senha que já está no AuthService
+        this.authService.login(
+            this.moradorId!,
+            moradorDto.nome ?? '',
+            moradorDto.email ?? '',
+        );
       },
       error: (err) => {
         this.toastr.error('Falha ao atualizar o perfil.');
@@ -128,13 +145,16 @@ export class MeuperfilComponent implements OnInit, OnDestroy { // Implementar On
   }
 
   alterarSenha(): void {
-    this.toastr.info('Funcionalidade de alterar senha ainda não implementada.');
+    // Ao clicar em "Alterar Senha", talvez você queira habilitar o campo de senha para edição
+    this.perfilForm.get('senha')?.enable();
+    this.perfilForm.get('senha')?.setValue(''); // Limpa o campo para o usuário digitar a nova senha
+    this.toastr.info('Digite a nova senha no campo e clique em "Salvar Alterações".');
   }
 
   desativarConta(): void {
     this.toastr.warning('Cuidado! Ação de desativar a conta não pode ser desfeita.');
-    // Aqui você adicionaria a lógica para chamar a API para desativar a conta
   }
+
   handlePrimaryNav(): void {
     this.router.navigate(['/profile']); // Navega para a rota de criação de conta
   }
