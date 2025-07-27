@@ -1,18 +1,18 @@
-// src/app/pages/saldo-morador/saldo-morador.component.ts
-
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Para *ngIf, *ngFor, currency pipe
+import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { SaldoMoradorDTO } from '../../types/models'; // Importe a interface do DTO
-import { NavegadorComponent } from '../../components/navegador/navegador.component'; // Se for usar navegador na página
-import { ToastrService } from 'ngx-toastr'; // Para feedback de erro
+import { SaldoMoradorDTO } from '../../types/models';
+import { NavegadorComponent } from '../../components/navegador/navegador.component';
+import { ToastrService } from 'ngx-toastr';
+import { Router , RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-saldo-morador',
   standalone: true,
   imports: [
     CommonModule,
-    NavegadorComponent // Inclua se for usar
+    NavegadorComponent,
+    RouterLink
   ],
   templateUrl: './saldo-morador.component.html',
   styleUrls: ['./saldo-morador.component.scss']
@@ -25,7 +25,8 @@ export class SaldoMoradorComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router // 2. Injete o Router no construtor
   ) { }
 
   ngOnInit(): void {
@@ -47,5 +48,10 @@ export class SaldoMoradorComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  // 3. Adicione a função para navegar
+  voltarAoDashboard(): void {
+    this.router.navigate(['/profile']);
   }
 }

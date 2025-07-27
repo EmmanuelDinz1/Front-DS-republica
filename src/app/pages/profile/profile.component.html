@@ -36,10 +36,10 @@
         <button class="btn-action" [routerLink]="'/conta'">
             <span>Adicionar Nova Conta</span>
         </button>
-        <button class="btn-action" [routerLink]="'/extrato'">
+        <button class="btn-action" [routerLink]="'/meuextrato'">
             <span>Ver Extrato Completo</span>
         </button>
-        <button class="btn-action" [routerLink]="'/saldos'">
+        <button class="btn-action" [routerLink]="'/SaldoComponent'">
             <span>Ver Saldos Moradores</span>
         </button>
     </div>
@@ -59,7 +59,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let conta of contasAbertas">
-              <td>{{ conta.tipoConta.descricao }}</td>
+              <td>{{ conta.tipoConta?.descricao }}</td>
               <td>{{ conta.observacao }}</td>
               <td>{{ conta.dataVencimento | date:'dd/MM/yyyy' }}</td>
               <td class="valor">{{ conta.valor | currency:'BRL' }}</td>

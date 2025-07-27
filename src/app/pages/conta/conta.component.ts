@@ -10,6 +10,7 @@ import { ApiService } from '../../services/api.service';
 import { Morador, TipoConta, ContaDTO, Conta, Rateio } from '../../types/models'; // Adicionado Conta e Rateio
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-conta',
@@ -20,7 +21,8 @@ import { forkJoin } from 'rxjs';
     CommonModule,
     ReactiveFormsModule,
     DefaultContaLayoutComponent,
-    PrimaryInputComponent
+    PrimaryInputComponent,
+    RouterLink
   ]
 })
 export class ContaComponent implements OnInit {

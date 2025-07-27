@@ -1,13 +1,13 @@
 // src/app/pages/extrato/extrato.component.ts
 
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { DefaultContaLayoutComponent } from '../../components/default-conta-layout/default-conta-layout.component';
 import { ApiService } from '../../services/api.service';
 import { Conta, Morador } from '../../types/models';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router'; // Importar Router
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-extrato',
@@ -17,107 +17,112 @@ import { Router } from '@angular/router'; // Importar Router
   imports: [
     CommonModule,
     DefaultContaLayoutComponent,
-    ReactiveFormsModule // Necessário para FormGroup e FormControl
-  ]
+    ReactiveFormsModule,
+    RouterLink
+  ],
+  providers: [DatePipe] // Adiciona o DatePipe para formatar datas
 })
 export class ExtratoComponent implements OnInit {
   extratoForm!: FormGroup;
   contas: Conta[] = [];
-  moradores: Morador[] = []; // Para o filtro por morador
+  moradores: Morador[] = [];
   filteredContas: Conta[] = [];
   isLoading = true;
 
   constructor(
     private apiService: ApiService,
     private toastr: ToastrService,
-    private router: Router // Injetar Router
+    private router: Router,
+    private datePipe: DatePipe // Injeta o DatePipe
   ) { }
 
   ngOnInit(): void {
+    this.iniciarFormulario();
+    this.carregarDadosIniciais();
+  }
+
+  iniciarFormulario(): void {
+    // Define um período padrão: do primeiro dia do mês atual até a data de hoje
+    const hoje = new Date();
+    const primeiroDiaDoMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
     this.extratoForm = new FormGroup({
-      dataInicio: new FormControl(''),
-      dataFim: new FormControl(''),
-      situacao: new FormControl(''), // Pode ser 'PAGO', 'EM_ABERTO', '' (todos)
-      moradorId: new FormControl('') // ID do morador para filtro
+      dataInicio: new FormControl(this.formatDate(primeiroDiaDoMes)),
+      dataFim: new FormControl(this.formatDate(hoje)),
+      situacao: new FormControl(''),
+      moradorId: new FormControl('')
     });
 
-    this.loadData();
-
-    // Re-filtra as contas sempre que os valores do formulário mudam
+    // Aplica os filtros sempre que um valor do formulário mudar
     this.extratoForm.valueChanges.subscribe(() => {
       this.applyFilters();
     });
   }
 
-  loadData(): void {
+  carregarDadosIniciais(): void {
     this.isLoading = true;
-    // Pega os valores do formulário para passar ao serviço
-    const { dataInicio, dataFim } = this.extratoForm.value; // Adicione esta linha para pegar os valores
-
-    // Chama o getExtrato com os argumentos necessários
-    this.apiService.getExtrato(dataInicio ?? '', dataFim ?? '').subscribe({ // <--- CORRIGIDO AQUI
-        next: (data) => {
-            this.contas = data;
-            this.applyFilters();
-            this.isLoading = false;
-        },
-        error: (err) => {
-            this.toastr.error('Erro ao carregar extrato de contas.');
-            console.error(err);
-            this.isLoading = false;
-        }
-    });
-
-    // Carrega moradores para o filtro
+    // Carrega a lista de moradores para preencher o filtro
     this.apiService.getMoradores().subscribe({
       next: (data) => {
         this.moradores = data;
+        // Após carregar os moradores, busca o extrato com as datas padrão
+        this.emitirExtrato();
       },
       error: (err) => {
-        this.toastr.error('Erro ao carregar moradores para o filtro.');
+        this.toastr.error('Falha ao carregar a lista de moradores.');
         console.error(err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  emitirExtrato(): void {
+    if (this.extratoForm.invalid) {
+      this.toastr.error('Por favor, preencha as datas de início e fim.');
+      return;
+    }
+    this.isLoading = true;
+    const { dataInicio, dataFim } = this.extratoForm.value;
+
+    this.apiService.getExtrato(dataInicio, dataFim).subscribe({
+      next: (data) => {
+        this.contas = data;
+        this.applyFilters(); // Aplica os filtros iniciais sobre os dados recebidos
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.toastr.error('Falha ao buscar o extrato de contas.');
+        console.error(err);
+        this.isLoading = false;
       }
     });
   }
 
   applyFilters(): void {
-    const { dataInicio, dataFim, situacao, moradorId } = this.extratoForm.value;
+    const { situacao, moradorId } = this.extratoForm.value;
+    let contasFiltradas = [...this.contas];
 
-    this.filteredContas = this.contas.filter(conta => {
-      const contaDate = new Date(conta.dataVencimento);
-      const start = dataInicio ? new Date(dataInicio) : null;
-      const end = dataFim ? new Date(dataFim) : null;
-
-      const matchesDate = (!start || contaDate >= start) && (!end || contaDate <= end);
-      const matchesSituacao = !situacao || conta.situacao === situacao;
-      const matchesMorador = !moradorId || conta.rateios.some(r => r.moradorId === parseInt(moradorId));
-
-      return matchesDate && matchesSituacao && matchesMorador;
-    });
-  }
-
-  // NOVO MÉTODO: Navegar para a tela de detalhes/edição da conta
-  viewContaDetails(contaId: number): void {
-    this.router.navigate(['/conta', contaId]);
-  }
-
-  // NOVO MÉTODO: Emitir Extrato (placeholder)
-  emitirExtrato(): void {
-    const { dataInicio, dataFim, situacao, moradorId } = this.extratoForm.value;
-    let message = 'Extrato gerado com os seguintes filtros: ';
-    if (dataInicio) message += `De: ${dataInicio} `;
-    if (dataFim) message += `Até: ${dataFim} `;
-    if (situacao) message += `Situação: ${situacao} `;
+    if (situacao) {
+      contasFiltradas = contasFiltradas.filter(c => c.situacao === situacao);
+    }
     if (moradorId) {
-      const morador = this.moradores.find(m => m.id === parseInt(moradorId));
-      if (morador) message += `Morador: ${morador.nome} `;
-    }
-    if (!dataInicio && !dataFim && !situacao && !moradorId) {
-      message = 'Extrato gerado para todas as contas.';
+      // Filtra se algum rateio da conta pertence ao morador selecionado
+      contasFiltradas = contasFiltradas.filter(c => 
+        c.rateios.some(r => r.moradorId === parseInt(moradorId))
+      );
     }
 
-    this.toastr.info(message + '. (Funcionalidade de exportação real a ser implementada no backend e frontend)');
-    // Aqui você integraria a lógica real para gerar e baixar o extrato (PDF, CSV, etc.)
-    // Ex: this.apiService.downloadExtrato(dataInicio, dataFim, situacao, moradorId).subscribe(...)
+    this.filteredContas = contasFiltradas;
+  }
+
+  viewContaDetails(contaId?: number): void {
+    if (contaId) {
+      this.router.navigate(['/conta', contaId]);
+    }
+  }
+
+  // Função auxiliar para formatar a data para o formato YYYY-MM-DD
+  private formatDate(date: Date): string {
+    return this.datePipe.transform(date, 'yyyy-MM-dd') || '';
   }
 }

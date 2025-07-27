@@ -40,7 +40,6 @@ export const routes: Routes = [
     path: 'meuextrato',
     component: ExtratoComponent
   },
-  // ATUALIZADO: Rota para aceitar ID opcional para edição
   {
     path: 'conta', // Para criar nova conta
     loadComponent: () => import('./pages/conta/conta.component').then(m => m.ContaComponent)
