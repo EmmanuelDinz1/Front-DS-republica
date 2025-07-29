@@ -1,0 +1,193 @@
+/* src/app/pages/mostrar-conta/mostrar-conta.component.scss */
+
+@import "../../../styles/variables.scss";
+
+.page-content {
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.loading-state, .error-state, .empty-state {
+    text-align: center;
+    padding: 30px;
+    font-size: 1.1em;
+    color: $text-color;
+}
+
+.error-state {
+    color: $danger-color;
+    button {
+        background-color: $primary-color;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        &:hover {
+            background-color: darken($primary-color, 5%);
+        }
+    }
+}
+
+.section-title {
+    color: $secondary-color;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 2em;
+    border-bottom: 2px solid $gray-bg;
+    padding-bottom: 10px;
+}
+
+.section-subtitle {
+    color: $secondary-color;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    border-bottom: 1px dashed $gray-bg;
+    padding-bottom: 5px;
+}
+
+.conta-details-container {
+    padding: 20px;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Duas colunas */
+    gap: 20px;
+
+    .detail-item {
+        background-color: $gray-secondary-bg;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid lighten($border-color, 5%);
+
+        strong {
+            display: block;
+            font-size: 0.9em;
+            color: $text-color;
+            margin-bottom: 5px;
+        }
+
+        span {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: $secondary-color;
+        }
+
+        &.full-width {
+            grid-column: 1 / -1; /* Ocupa todas as colunas */
+        }
+    }
+}
+
+/* Estilos para os indicadores de status */
+span.status-quitada {
+    color: $success-color;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-right: 5px;
+}
+
+span.status-pendente {
+    color: $danger-color;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-right: 5px;
+}
+
+span.status-cancelada {
+    color: $text-color;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-right: 5px;
+    opacity: 0.7;
+}
+
+/* Tabela de Rateio */
+.table-container {
+    overflow-x: auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 400px;
+}
+
+th, td {
+    border: 1px solid $border-color;
+    padding: 10px 15px;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+th {
+    background-color: $secondary-color;
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+    &:first-child { border-top-left-radius: 8px; }
+    &:last-child { border-top-right-radius: 8px; }
+}
+
+tbody tr:nth-child(even) {
+    background-color: $gray-bg;
+}
+
+tbody tr:hover {
+    background-color: lighten($primary-color, 45%);
+}
+
+.action-buttons-bottom {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed $gray-bg;
+
+    .btn-primary, .btn-secondary {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: $primary-color;
+        color: white;
+        &:hover { background-color: darken($primary-color, 5%); }
+    }
+
+    .btn-secondary {
+        background-color: $gray-secondary-bg;
+        color: $secondary-color;
+        &:hover { background-color: darken($gray-secondary-bg, 5%); }
+    }
+}
+
+/* Responsividade básica */
+@media (max-width: 600px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+    .table-container table {
+        min-width: unset;
+    }
+    .action-buttons-bottom {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

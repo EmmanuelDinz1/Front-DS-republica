@@ -1,0 +1,85 @@
+# Front-DS-Republica
+
+This is the **frontend** of the DS Republica project, built with [Angular CLI](https://github.com/angular/angular-cli) version 17.2.3.
+
+---
+
+## 🚀 Development server
+
+Run the development server with:
+
+```bash
+ng serve
+```
+
+Then open your browser at `http://localhost:4200/`.  
+The app will automatically reload whenever you change any source files.
+
+---
+
+## 🏗️ Build
+
+To build the project for production:
+
+```bash
+ng build
+```
+
+The build output will be stored in the `dist/` directory.  
+You can deploy these files to any static hosting service.
+
+---
+
+## 🧪 Running tests
+
+### Unit tests
+Run:
+
+```bash
+ng test
+```
+
+Executes the unit tests using [Karma](https://karma-runner.github.io).
+
+### End-to-end tests
+Run:
+
+```bash
+ng e2e
+```
+
+(Requires an additional package that provides e2e testing capabilities.)
+
+---
+
+## 📂 Code generation
+
+Use Angular CLI to generate new components, services, or other features:
+
+```bash
+ng generate component component-name
+```
+
+You can also generate:
+- directives
+- pipes
+- services
+- classes
+- guards
+- interfaces
+- enums
+- modules
+
+---
+
+## 📖 Further help
+
+For more CLI options and commands:
+
+```bash
+ng help
+```
+
+Or visit the [Angular CLI Documentation](https://angular.io/cli).
+
+---

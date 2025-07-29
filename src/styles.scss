@@ -1,0 +1,37 @@
+@import 'ngx-toastr/toastr';
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+.btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+.btn-back {
+  padding: 12px 25px;
+  border: 1px solid #ddd; /* Borda sutil */
+  background-color: #f8f9fa; /* Fundo cinza claro */
+  color: #555; /* Cor do texto */
+  text-align: center;
+  text-decoration: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    background-color: #e9ecef; /* Cor ao passar o mouse */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+}

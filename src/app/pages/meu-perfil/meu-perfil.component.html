@@ -1,0 +1,79 @@
+<app-navegador
+  [title2]="'Meu Perfil'"
+  primaryBtnText="Dashboard"
+  secondaryBtnText="Nova Conta"
+  (submitAction)="handlePrimaryNav()"
+  (navigateAction)="handleSecondaryNav()"
+></app-navegador>
+
+<div *ngIf="isLoading; else formContent" class="loading-state">
+  <p>Carregando perfil...</p>
+</div>
+
+<ng-template #formContent>
+  <div class="card" *ngIf="perfilForm">
+    <div class="card-header">
+      <h2><i class="material-icons">person</i> Meus Dados</h2>
+      <p>Veja e edite seus dados de acesso na plataforma</p>
+    </div>
+
+    <form [formGroup]="perfilForm" class="card-body">
+      <div class="form-group">
+        <label>Nome:</label>
+        <input type="text" formControlName="nome" class="form-control" />
+      </div>
+
+      <div class="form-group two-columns">
+        <div>
+          <label>Usuário (e-mail):</label>
+          <div class="input-with-icon">
+            <i class="material-icons">email</i>
+            <input type="email" formControlName="email" class="form-control" />
+          </div>
+        </div>
+        <div>
+          <label>CPF:</label>
+          <div class="input-with-icon">
+            <i class="material-icons">folder</i>
+            <input type="text" formControlName="cpf" class="form-control" />
+          </div>
+        </div>
+      </div>
+       <div class="form-group two-columns">
+        <div>
+          <label>Celular:</label>
+          <div class="input-with-icon">
+            <i class="material-icons">phone</i>
+            <input type="text" formControlName="celular" class="form-control" />
+          </div>
+        </div>
+        <div>
+          <label>Data de Nascimento:</label>
+          <div class="input-with-icon">
+            <i class="material-icons">cake</i>
+            <input type="date" formControlName="dataNascimento" class="form-control" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contatos de Família:</label>
+        <textarea formControlName="contatosFamilia" class="form-control"></textarea>
+      </div>
+
+       <div class="form-group">
+        <label>Senha:</label>
+        <div class="input-with-action">
+          <i class="material-icons">lock</i>
+          <input type="password" value="********" disabled class="form-control" />
+          <a (click)="alterarSenha()">Alterar senha</a>
+        </div>
+      </div>
+    </form>
+
+    <div class="card-footer">
+      <button class="btn btn-black" (click)="salvar()" [disabled]="perfilForm.invalid || perfilForm.pristine">Salvar Alterações</button>
+      <button class="btn btn-orange" (click)="desativarConta()">Quero desativar minha conta</button>
+    </div>
+  </div>
+</ng-template>

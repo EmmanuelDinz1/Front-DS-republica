@@ -1,0 +1,67 @@
+<app-default-conta-layout
+  title="Cadastro de Nova Conta"
+  primaryBtnText="Salvar Conta"
+  (primaryAction)="submit()"
+>
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Carregando...</p>
+  </div>
+
+  <form *ngIf="!isLoading" [formGroup]="contaForm" class="grid-form">
+
+        <div class="form-row">
+      <label>Tipo de Conta</label>
+      <select formControlName="tipoConta" class="form-control">
+        <option [ngValue]="null" disabled>Selecione o tipo...</option>
+        <option *ngFor="let tipo of tiposConta" [ngValue]="tipo.id">{{ tipo.descricao }}</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Morador Responsável</label>
+      <select formControlName="responsavel" class="form-control">
+        <option [ngValue]="null" disabled>Selecione o responsável...</option>
+        <option *ngFor="let morador of moradores" [ngValue]="morador.id">{{ morador.nome }}</option>
+      </select>
+    </div>
+
+        <div class="form-row">
+      <label>Valor Total</label>
+      <input type="number" formControlName="valor" placeholder="Ex: 1500.00" class="form-control"/>
+    </div>
+    <div class="form-row">
+      <label>Data Vencimento</label>
+      <input type="date" formControlName="dataVencimento" class="form-control"/>
+    </div>
+    
+        <div class="form-row-full">
+      <label>Observação</label>
+      <textarea formControlName="observacao" placeholder="Ex: Referente ao aluguel de Maio" class="form-control"></textarea>
+    </div>
+
+        <div formArrayName="rateios" class="rateio-section">
+      <div class="rateio-header">
+        <h3>Rateio entre Moradores</h3>
+        <button type="button" (click)="dividirIgualmente()" class="btn-secondary">Dividir Igualmente</button>
+      </div>
+      
+      <div
+        *ngFor="let rateioControl of rateios.controls; let i = index"
+        [formGroupName]="i"
+        class="morador-row"
+      >
+                <span class="morador-name">{{ getMoradorNome(rateioControl.value.morador.id) }}</span>
+        
+                <input type="number" formControlName="valor" placeholder="Valor do rateio" class="form-control" />
+        
+                <select formControlName="status" class="form-control rateio-status-select">
+            <option value="EM_ABERTO">Em Aberto</option>
+            <option value="PAGO">Pago</option>
+        </select>
+        
+        <button type="button" (click)="removerRateio(i)" class="btn-remove" title="Remover morador do rateio">
+          &times;
+        </button>
+      </div>
+    </div>
+  </form>
+</app-default-conta-layout>
