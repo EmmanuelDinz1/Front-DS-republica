@@ -7,7 +7,6 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { MeuperfilComponent } from './pages/meu-perfil/meu-perfil.component';
 import { ContaComponent } from './pages/conta/conta.component';
 import { SaldoMoradorComponent } from './pages/saldo-morador/saldo-morador.component';
-import { ExtratoComponent } from './pages/extrato/extrato.component';
 import { MostrarContaComponent } from './pages/mostrar-conta/mostrar-conta.component'; // <--- NOVA IMPORTAÇÃO
 
 export const routes: Routes = [
@@ -43,10 +42,6 @@ export const routes: Routes = [
   {
     path: 'saldos',
     loadComponent: () => import('./pages/saldo-morador/saldo-morador.component').then(m => m.SaldoMoradorComponent)
-  },
-  {
-    path: 'extrato',
-    loadComponent: () => import('./pages/extrato/extrato.component').then(m => m.ExtratoComponent)
   },
   {
     path: 'mostrar-conta/:id', // <--- NOVA ROTA PARA MOSTRAR DETALHES DA CONTA

@@ -1,4 +1,3 @@
-<!-- default-conta-layout.component.html -->
 <main>
   <section class="form-section">
     <h2>{{ title }}</h2>
@@ -6,7 +5,13 @@
     <ng-content></ng-content>
 
     <div class="btn-wrapper">
-      <button class="btn-primary" (click)="primaryAction.emit()" [disabled]="disablePrimaryBtn">{{ primaryBtnText }}</button>
+      <button class="btn btn-primary" (click)="primaryAction.emit()" [disabled]="disablePrimaryBtn">
+        {{ primaryBtnText }}
+      </button>
+
+      <button *ngIf="secondaryBtnText" class="btn btn-secondary" (click)="secondaryAction.emit()">
+        {{ secondaryBtnText }}
+      </button>
     </div>
   </section>
 </main>

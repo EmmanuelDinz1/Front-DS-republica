@@ -1,4 +1,3 @@
-// default-conta-layout.component.ts
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
@@ -10,6 +9,9 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class DefaultContaLayoutComponent {
   @Input() title!: string;
   @Input() primaryBtnText = 'Salvar';
-  @Input() disablePrimaryBtn: boolean = false; // <-- ADICIONADO
+  @Input() secondaryBtnText?: string;
+  @Input() disablePrimaryBtn: boolean = false;
+
   @Output() primaryAction = new EventEmitter<void>();
+  @Output() secondaryAction = new EventEmitter<void>();
 }

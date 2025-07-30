@@ -1,7 +1,9 @@
 <app-default-conta-layout
-  title="Cadastro de Nova Conta"
-  primaryBtnText="Salvar Conta"
-  (primaryAction)="submit()"
+  title="Cadastro de Nova Conta"
+  primaryBtnText="Salvar Conta"
+  secondaryBtnText="Voltar"
+  (primaryAction)="submit()"
+  (secondaryAction)="voltarParaPerfil()"
 >
   <div *ngIf="isLoading" class="loading-state">
     <p>Carregando...</p>

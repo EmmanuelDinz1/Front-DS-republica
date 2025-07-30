@@ -154,11 +154,7 @@ export class MeuperfilComponent implements OnInit, OnDestroy {
   desativarConta(): void {
     this.toastr.warning('Cuidado! Ação de desativar a conta não pode ser desfeita.');
   }
-
-  handlePrimaryNav(): void {
-    this.router.navigate(['/profile']); // Navega para a rota de criação de conta
-  }
-
+  
   // Lida com a ação do botão secundário do navegador (Ex: Meu Perfil)
   handleSecondaryNav(): void {
     this.router.navigate(['/profile']); // Navega para a rota do perfil do usuário
