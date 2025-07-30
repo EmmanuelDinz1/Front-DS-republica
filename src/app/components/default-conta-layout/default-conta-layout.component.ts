@@ -1,8 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-default-conta-layout',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './default-conta-layout.component.html',
   styleUrl: './default-conta-layout.component.scss'
 })
