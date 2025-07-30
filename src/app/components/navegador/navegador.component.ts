@@ -1,11 +1,12 @@
+// src/app/components/navegador/navegador.component.ts
+
 import { Input, Output, EventEmitter, Component } from '@angular/core';
 import { NgIf } from '@angular/common';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-navegador',
   standalone: true,
-  imports: [NgIf, RouterLink],
+  imports: [NgIf],
   templateUrl: './navegador.component.html',
   styleUrls: ['./navegador.component.scss']
 })
@@ -14,13 +15,22 @@ export class NavegadorComponent {
   @Input() title2: string = '';
   @Input() primaryBtnText: string = '';
   @Input() secondaryBtnText: string = '';
+  // REMOVIDO: @Input() terceiroBtnText: string = ''; // Não há terceiro botão
+
   @Input() disablePrimaryBtn: boolean = true;
-  @Input() routerLinkPrimary: string | any[] | null = null;
-  @Input() routerLinkSecondary: string | any[] | null = null;
 
-@Output("submitAction") onSubmitAction = new EventEmitter<void>(); // <-- NOME CORRETO
-@Output("navigateAction") onNavigateAction = new EventEmitter<void>(); // <-- NOME CORRETO
+  @Output("submitAction") onSubmitAction = new EventEmitter<void>(); // Evento para o botão primário (Sair)
+  @Output("navigateAction") onNavigateAction = new EventEmitter<void>(); // Evento para o botão secundário (Meu Perfil)
+  // REMOVIDO: @Output("navigateActionDois") onNavigateActionDois = new EventEmitter<void>(); // Não há terceiro botão
 
-submit(){ this.onSubmitAction.emit(); } // Emite o novo nome
-navigate(){ this.onNavigateAction.emit(); } // Emite o novo nome
+  submit(): void {
+    console.log('NavegadorComponent: Botão primário (Sair) clicado!');
+    this.onSubmitAction.emit();
+  }
+
+  navigate(): void {
+    console.log('NavegadorComponent: Botão secundário (Meu Perfil) clicado!');
+    this.onNavigateAction.emit();
+  }
+  // REMOVIDO: navigateDois() method
 }

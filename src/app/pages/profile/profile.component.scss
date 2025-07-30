@@ -4,7 +4,7 @@
 
 .page-content {
     padding: 20px;
-    max-width: 1200px; /* Aumenta a largura máxima para melhor visualização */
+    max-width: 1200px;
     margin: 20px auto;
     background-color: white;
     border-radius: 8px;
@@ -36,41 +36,38 @@
 
 .section-title {
     color: $secondary-color;
-    margin: 40px 0 20px 0; /* Mais espaçamento superior */
-    font-size: 2em; /* Títulos maiores */
-    border-bottom: 2px solid $gray-bg; /* Linha de separação */
+    margin: 40px 0 20px 0;
+    font-size: 2em;
+    border-bottom: 2px solid $gray-bg;
     padding-bottom: 10px;
-}
-
-.text-center {
-    text-align: center; /* Classe para centralizar textos */
+    text-align: center;
 }
 
 /* Container de Cards (Visão Geral) */
 .cards-container {
     display: flex;
-    justify-content: center; /* Centraliza os cards */
+    justify-content: center;
     gap: 20px;
-    flex-wrap: wrap; /* Garante que quebrem linha em telas menores */
+    flex-wrap: wrap;
     margin-bottom: 40px;
 
     .card-item {
-        flex: 0 0 calc(50% - 10px); /* Ocupa metade da largura em telas maiores, com gap */
-        max-width: 300px; /* Limite para cards individuais */
-        text-align: center; /* Centraliza o conteúdo dentro do card */
-        padding: 20px; /* Mais padding */
+        flex: 0 0 calc(25% - 15px); /* Ajustado para 4 cards por linha em telas maiores */
+        max-width: 280px; /* Ajustado para cards individuais */
+        text-align: center;
+        padding: 20px;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        background: linear-gradient(135deg, white, lighten($gray-bg, 3%)); /* Gradiente suave */
+        background: linear-gradient(135deg, white, lighten($gray-bg, 3%));
 
         .card-title {
-            font-size: 1.3em;
+            font-size: 1.1em;
             color: $secondary-color;
             margin-bottom: 10px;
         }
 
         .card-value, .card-value-danger {
-            font-size: 2.2em; /* Valor maior */
+            font-size: 1.8em;
             font-weight: bold;
             color: $primary-color;
         }
@@ -85,56 +82,146 @@
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    justify-content: center; /* Centraliza os botões de ação */
+    justify-content: center;
     margin-bottom: 40px;
 
     .btn-action {
         background-color: $secondary-color;
         color: white;
-        padding: 20px 30px; /* Aumenta o padding */
+        padding: 20px 30px;
         border: none;
-        border-radius: 12px; /* Cantos mais arredondados */
+        border-radius: 12px;
         cursor: pointer;
-        font-size: 1.15em; /* Texto maior */
+        font-size: 1.15em;
         font-weight: 600;
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 10px; /* Mais espaçamento entre texto e ícone (se voltar a usar) */
+        gap: 10px;
         transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-        min-width: 220px; /* Aumenta a largura mínima para botões mais robustos */
-        box-shadow: 0 6px 15px rgba(0,0,0,0.15); /* Sombra mais pronunciada */
-
-        .icon-action { /* Manter se voltar a usar ícones */
-            width: 50px;
-            height: 50px;
-            filter: invert(100%);
-        }
+        min-width: 220px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
 
         &:hover {
             background-color: darken($secondary-color, 8%);
-            transform: translateY(-5px); /* Efeito de elevação maior */
+            transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.25);
         }
     }
 }
 
 
-/* Tabela de Contas Pendentes */
+/* Estilos para o FORMULÁRIO DE FILTROS - NOVO E MELHORADO */
+.filters-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: lighten($gray-secondary-bg, 3%);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid $border-color;
+
+    .form-group-inline {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 160px;
+        max-width: 250px;
+
+        label {
+            margin-bottom: 5px;
+            font-size: 0.95em;
+            color: $text-color;
+            font-weight: 600;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 1px solid darken($border-color, 5%);
+            border-radius: 8px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: white;
+
+            &:focus {
+                border-color: $primary-color;
+                box-shadow: 0 0 0 3px rgba($primary-color, 0.25);
+                outline: none;
+            }
+        }
+
+        select.form-control {
+            height: 42px;
+        }
+    }
+
+    /* Grupo de botões de filtro */
+    .filter-buttons-group { /* NOVO ESTILO PARA AGRUPAR OS BOTÕES */
+        display: flex;
+        gap: 10px; /* Espaçamento entre os botões */
+        align-items: flex-end; /* Alinha os botões com os inputs */
+        flex-wrap: wrap; /* Permite que os botões quebrem linha em telas menores */
+        min-width: 160px; /* Garante que o grupo de botões tenha uma largura mínima */
+        flex: 1; /* Permite que o grupo de botões ocupe espaço */
+        justify-content: flex-start; /* Alinha os botões à esquerda dentro do grupo */
+
+        .filter-btn { /* Estilo para o botão "Aplicar Filtros" */
+            background-color: $primary-color;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.05em;
+            height: 42px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+
+            &:hover {
+                background-color: darken($primary-color, 5%);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            }
+        }
+
+        /* Estilo para o botão "Limpar Filtros" */
+        .btn-secondary.filter-btn {
+            background-color: $gray-secondary-bg;
+            color: $secondary-color;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+
+            &:hover {
+                background-color: darken($gray-secondary-bg, 5%);
+                color: $primary-color;
+                box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+            }
+        }
+    }
+}
+
+
+/* Tabela geral e específicos dos botões de ação na tabela */
 .table-container {
     overflow-x: auto;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 700px;
 }
 
 th, td {
@@ -153,7 +240,7 @@ th {
     &:last-child { border-top-right-radius: 8px; }
 }
 td {
-  vertical-align: middle; /* Alinha o conteúdo verticalmente */
+  vertical-align: middle;
 }
 
 tbody tr:nth-child(even) {
@@ -176,93 +263,59 @@ tbody tr:hover {
     color: $text-color;
 }
 
-/* Botão de Edição na Tabela */
-.btn-edit {
-    background-color: $primary-color; /* Cor para o botão de edição */
+/* Estilos para os indicadores de status */
+span.status-quitada {
+    color: $success-color;
+    font-weight: bold;
+    font-size: 1em;
+    white-space: nowrap;
+}
+
+span.status-pendente {
+    color: $danger-color;
+    font-weight: bold;
+    font-size: 1em;
+    white-space: nowrap;
+}
+
+span.status-cancelada {
+    color: $text-color;
+    font-weight: bold;
+    font-size: 1em;
+    white-space: nowrap;
+    opacity: 0.7;
+}
+
+/* Botões de Detalhes e Edição na Tabela */
+.btn-details, .btn-edit {
+    background-color: $primary-color;
     color: white;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 0.8em;
     font-weight: 500;
     transition: background-color 0.3s ease;
-    display: inline-flex; /* Para centralizar o texto/ícone */
+    display: inline-flex;
     align-items: center;
-    gap: 5px; /* Espaçamento se tiver ícone e texto */
-
-    span {
-        color: white; /* Garante que o texto seja branco */
-    }
+    gap: 4px;
+    margin-right: 5px;
+    text-transform: uppercase;
 
     &:hover {
         background-color: darken($primary-color, 8%);
     }
 }
-
-/* Ajustes para o Navegador (Header) */
-.navegador-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Espaçamento entre os itens */
-    padding: 15px 30px;
+.btn-details {
     background-color: $secondary-color;
-    color: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-
-    .logo {
-        flex-grow: 1; /* Permite que o logo ocupe espaço */
-        text-align: left; /* Alinha o logo à esquerda */
-        span {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: $primary-color; /* Cor de destaque para o logo */
-        }
-    }
-
-    .perfil { /* Este é o item do meio */
-        flex-grow: 0; /* Não cresce */
-        text-align: center;
-        span {
-            font-size: 1.1em;
-            font-weight: 500;
-        }
-    }
-
-    .btn-wrapper, .btn-wrapper2 { /* Estes são os botões da direita */
-        flex-grow: 1; /* Permite que os wrappers ocupem espaço */
-        text-align: right; /* Alinha os botões à direita */
-        
-        button {
-            background-color: $primary-color;
-            color: white;
-            font-weight: 600;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-
-            &:hover {
-                background-color: darken($primary-color, 5%);
-            }
-        }
-        .btn-secondary {
-            background-color: $gray-secondary-bg;
-            color: $secondary-color;
-            &:hover {
-                background-color: darken($gray-secondary-bg, 5%);
-                color: $primary-color;
-            }
-        }
-    }
-    .btn-wrapper + .btn-wrapper2 {
-        margin-left: 10px; /* Espaçamento entre os botões da direita, se houver dois */
+    &:hover {
+        background-color: darken($secondary-color, 8%);
     }
 }
 
-/* Responsividade básica para o dashboard */
+
+/* Responsividade geral */
 @media (max-width: 768px) {
     .page-content {
         padding: 10px;
@@ -273,7 +326,7 @@ tbody tr:hover {
         flex-direction: column;
         align-items: center;
         .card-item {
-            flex: 0 0 90%; /* Ocupa quase toda a largura em telas pequenas */
+            flex: 0 0 90%;
             max-width: none;
         }
     }
@@ -287,12 +340,32 @@ tbody tr:hover {
         }
     }
 
+    .filters-form {
+        flex-direction: column;
+        align-items: stretch;
+        .form-group-inline {
+            max-width: 100%;
+        }
+        .filter-btn {
+            width: 100%;
+        }
+    }
+
     .table-container {
         padding: 10px;
     }
 
-    .extrato-table {
-        min-width: 100%; /* Garante que a tabela use toda a largura disponível */
+    table {
+        min-width: 100%;
+        font-size: 0.85rem;
+    }
+
+    th, td {
+        padding: 8px 10px;
+    }
+    .btn-details, .btn-edit {
+        padding: 5px 8px;
+        font-size: 0.7em;
     }
 
     /* Navegador responsivo */

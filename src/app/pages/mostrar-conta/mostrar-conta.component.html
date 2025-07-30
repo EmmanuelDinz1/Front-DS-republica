@@ -1,0 +1,79 @@
+<app-navegador
+    title2="Detalhes da Conta"
+    primaryBtnText="Voltar"
+    secondaryBtnText="Editar"
+    (submitAction)="voltar()"
+    (navigateAction)="editarConta()"
+></app-navegador>
+
+<div class="page-content">
+    <div *ngIf="isLoading" class="loading-state">
+        <p>Carregando detalhes da conta...</p>
+    </div>
+
+    <div *ngIf="error" class="error-state">
+        <p>{{ error }}</p>
+        <button (click)="voltar()">Voltar</button>
+    </div>
+
+    <div *ngIf="!isLoading && !error && conta" class="conta-details-container">
+        <h2 class="section-title">Conta: {{ conta.tipoContaDescricao }}</h2> <div class="details-grid">
+            <div class="detail-item">
+                <strong>Valor Total:</strong> <span>{{ conta.valor | currency:'BRL' }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Data de Vencimento:</strong> <span>{{ conta.dataVencimento | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="detail-item">
+                <strong>Situação:</strong> 
+                <span [ngClass]="{'status-quitada': conta.situacao === 'QUITADA', 'status-pendente': conta.situacao === 'PENDENTE' || conta.situacao === 'EM_ABERTO', 'status-cancelada': conta.situacao === 'CANCELADA'}">
+                    <ng-container *ngIf="conta.situacao === 'QUITADA'">✔</ng-container>
+                    <ng-container *ngIf="conta.situacao === 'PENDENTE' || conta.situacao === 'EM_ABERTO'">✖</ng-container>
+                    <ng-container *ngIf="conta.situacao === 'CANCELADA'">🚫</ng-container>
+                    {{ conta.situacao }}
+                </span>
+            </div>
+            <div class="detail-item">
+                <strong>Responsável:</strong> <span>{{ conta.responsavelNome }}</span> </div>
+            <div class="detail-item full-width">
+                <strong>Observação:</strong> <span>{{ conta.observacao || 'Nenhuma' }}</span>
+            </div>
+        </div>
+
+        <h3 class="section-subtitle">Rateio da Conta</h3>
+        <div *ngIf="conta.rateios && conta.rateios.length > 0; else noRateios" class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Morador</th>
+                        <th>Valor Devido</th>
+                        <th>Status Rateio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let rateio of conta.rateios">
+                        <td>{{ rateio.moradorNome }}</td>
+                        <td>{{ rateio.valor | currency:'BRL' }}</td>
+                        <td>
+                            <span [ngClass]="{'status-quitada': rateio.status === 'PAGO', 'status-pendente': rateio.status === 'EM_ABERTO'}">
+                                <ng-container *ngIf="rateio.status === 'PAGO'">✔</ng-container>
+                                <ng-container *ngIf="rateio.status === 'EM_ABERTO'">✖</ng-container>
+                                {{ rateio.status }}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <ng-template #noRateios>
+            <p class="empty-state">Esta conta não possui rateios registrados.</p>
+        </ng-template>
+
+        <div class="action-buttons-bottom">
+            <button (click)="voltar()" class="btn-secondary">Voltar</button>
+            <button (click)="editarConta()" class="btn-primary">
+                Editar Conta
+            </button>
+        </div>
+    </div>
+</div>

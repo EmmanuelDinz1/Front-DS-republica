@@ -5,7 +5,7 @@
 .navegador-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /* Espaçamento entre left, center e right sections */
   padding: 15px 30px;
   background-color: $secondary-color;
   color: white;
@@ -14,9 +14,11 @@
 }
 
 .left-section {
-  flex-grow: 1;
-  display: flex;
-  justify-content: flex-start;
+  display: flex; /* Torna esta seção um flex container */
+  align-items: center; /* Alinha itens verticalmente */
+  flex-grow: 1; /* Permite crescer */
+  justify-content: flex-start; /* Alinha o conteúdo à esquerda */
+  gap: 15px; /* Espaçamento entre o logo e o novo botão esquerdo */
 
   .logo {
     span {
@@ -26,20 +28,40 @@
       white-space: nowrap;
     }
   }
+
+  .btn-wrapper-left { /* Estilo para o novo botão esquerdo */
+    button {
+      background-color: $gray-secondary-bg; /* Cor secundária */
+      color: $secondary-color; /* Texto na cor principal */
+      font-weight: 600;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.3s ease, color 0.3s ease;
+
+      &:hover {
+        background-color: darken($gray-secondary-bg, 5%);
+        color: $primary-color; /* Muda a cor do texto no hover */
+      }
+    }
+  }
 }
 
 .center-section {
   flex-grow: 0;
   flex-shrink: 0;
-  flex-basis: auto; /* Permite que o conteúdo defina a largura, mas sem crescer muito */
-  display: flex; /* Adicionado: Para centralizar o conteúdo interno */
-  justify-content: center; /* Adicionado: Centraliza horizontalmente */
-  align-items: center; /* Adicionado: Centraliza verticalmente (se houver altura diferente) */
-  padding: 0 20px; /* Adicionado: Um pouco de padding para "aumentar" visualmente o espaço */
+  flex-basis: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
 
   .perfil {
     span {
-      font-size: 1.3em; /* Aumentado: Texto um pouco maior */
+      font-size: 1.3em;
       font-weight: 500;
       white-space: nowrap;
     }
@@ -49,8 +71,8 @@
 .right-section {
   flex-grow: 1;
   display: flex;
-  justify-content: flex-end;
-  gap: 15px;
+  justify-content: flex-end; /* Alinha os botões à direita */
+  gap: 15px; /* Espaçamento entre os botões na direita */
 
   .btn-wrapper, .btn-wrapper2 {
     button {
@@ -89,15 +111,20 @@
     
     .left-section, .center-section, .right-section {
       width: 100%;
-      justify-content: center;
+      justify-content: center; /* Centraliza o conteúdo nas seções */
       margin-bottom: 10px;
       &:last-child {
         margin-bottom: 0;
       }
     }
 
+    .left-section { /* Ajuste para o left-section em mobile */
+        flex-direction: column; /* Empilha logo e botão esquerdo */
+        gap: 10px;
+    }
+
     .right-section {
-      flex-direction: column;
+      flex-direction: column; /* Empilha os botões */
       gap: 10px;
     }
   }

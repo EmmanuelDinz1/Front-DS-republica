@@ -1,92 +1,210 @@
-// src/app/pages/profile/profile.component.ts
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NavegadorComponent } from '../../components/navegador/navegador.component';
+import { CardsComponent } from '../../components/cards/cards.component';
+import { ApiService } from '../../services/api.service';
+import { Conta } from '../../types/models';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
-import { Component, OnInit, OnDestroy } from '@angular/core'; // Adicionado OnDestroy para gerenciar inscrição
-import { CommonModule } from '@angular/common'; // Para *ngIf, *ngFor, pipes
-import { NavegadorComponent } from '../../components/navegador/navegador.component'; // Seu componente de navegação
-import { CardsComponent } from '../../components/cards/cards.component'; // Seu componente de cards
-import { ApiService } from '../../services/api.service'; // Serviço para comunicação com o backend
-import { Conta } from '../../types/models'; // Interface da Conta
-import { Router, RouterModule } from '@angular/router'; // Serviço de roteamento do Angular e RouterModule para routerLink
-import { AuthService } from '../../services/auth.service'; // Importar AuthService
-import { Subscription } from 'rxjs'; // Importar Subscription para gerenciar a inscrição
+interface ProfileFilterForm {
+  dataInicio: FormControl<string | null>;
+  dataFim: FormControl<string | null>;
+  situacao: FormControl<string | null>;
+}
 
 @Component({
   selector: 'app-profile',
-  standalone: true, // Componente standalone
+  standalone: true,
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   imports: [
     CommonModule,
     NavegadorComponent,
     CardsComponent,
-    RouterModule // MANTIDO: Necessário para os [routerLink] em seu template HTML
+    RouterModule,
+    ReactiveFormsModule
   ]
 })
-export class ProfileComponent implements OnInit, OnDestroy { // Implementar OnDestroy
-  contasAbertas: Conta[] = []; // Array para armazenar as contas pendentes
-  isLoading = true; // Flag para indicar estado de carregamento
-  error: string | null = null; // Mensagem de erro, se houver
+export class ProfileComponent implements OnInit, OnDestroy {
+  todasAsContas: Conta[] = [];
+  contasEmAberto: Conta[] = [];
+  contasPagas: Conta[] = [];
 
-  nomeUsuario: string | null = null; // AGORA: Pode ser null inicialmente, será preenchido pelo AuthService
-  private authSubscription: Subscription | undefined; // Para gerenciar a inscrição no AuthService
+  contasDoMoradorLogadoSemFiltro: Conta[] = []; // contas do morador, sem filtro
+  contasDoMoradorLogadoBase: Conta[] = []; // base para filtro
+  filteredMinhasContas: Conta[] = []; // contas filtradas
+
+  filterForm!: FormGroup<ProfileFilterForm>;
+  situacoes: string[] = ['TODAS', 'PENDENTE', 'QUITADA', 'CANCELADA', 'EM_ABERTO', 'PAGO'];
+
+  isLoading = true;
+  error: string | null = null;
+
+  nomeUsuario: string | null = null;
+  moradorLogadoId: number | null = null;
+
+  private authSubscription: Subscription | undefined;
+  private dataSubscription: Subscription | undefined;
 
   constructor(
-    private apiService: ApiService, // Injeta o serviço de API
-    private router: Router, // Injeta o serviço de roteamento
-    private authService: AuthService // INJETADO: Serviço de autenticação para obter o nome do usuário
+    private apiService: ApiService,
+    private router: Router,
+    private authService: AuthService
   ) {}
 
-  ngOnInit() {
-    // Inscrever-se para receber o nome do usuário logado do AuthService
-    // Isso garante que o nome seja atualizado se o usuário logar/deslogar ou recarregar a página
+  ngOnInit(): void {
+    this.iniciarFormularioFiltro();
+
     this.authSubscription = this.authService.moradorNome$.subscribe(name => {
       this.nomeUsuario = name;
     });
+    this.authSubscription.add(
+      this.authService.moradorId$.subscribe(id => {
+        this.moradorLogadoId = id;
+      })
+    );
 
-    this.isLoading = true; // Define o estado de carregamento como verdadeiro
-    // Chama o serviço para obter as contas em aberto
-    this.apiService.getContasAbertas().subscribe({
-      next: (data) => {
-        this.contasAbertas = data; // Atribui os dados recebidos às contas em aberto
-        this.isLoading = false; // Carregamento concluído
-      },
-      error: (err) => {
-        this.error = 'Falha ao carregar as contas em aberto.'; // Define mensagem de erro
-        this.isLoading = false; // Carregamento concluído
-        console.error(err); // Loga o erro no console para depuração
-        // Opcional: Redirecionar para login se a API retornar 401 ou 403 aqui
-        // if (err.status === 401 || err.status === 403) {
-        //   this.authService.logout();
-        //   this.router.navigate(['/login']);
-        // }
+    this.dataSubscription = this.authService.moradorToken$.subscribe((token: string | null) => {
+      if (token) {
+        this.loadTodasAsContas();
+      } else {
+        this.todasAsContas = [];
+        this.contasEmAberto = [];
+        this.contasPagas = [];
+        this.contasDoMoradorLogadoSemFiltro = [];
+        this.contasDoMoradorLogadoBase = [];
+        this.filteredMinhasContas = [];
+        this.isLoading = false;
+        this.error = 'Você precisa estar logado para ver as contas. Faça login.';
+        if (!this.authService.getMoradorNome()) {
+          this.router.navigate(['/login']);
+        }
       }
     });
   }
 
-  // ngOnDestroy é crucial para "desinscrever" de Observables e evitar vazamentos de memória
   ngOnDestroy(): void {
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
+    this.authSubscription?.unsubscribe();
+    this.dataSubscription?.unsubscribe();
+  }
+
+  iniciarFormularioFiltro(): void {
+    const hoje = new Date();
+    const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+    const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    this.filterForm = new FormGroup<ProfileFilterForm>({
+      dataInicio: new FormControl(primeiroDiaMes),
+      dataFim: new FormControl(ultimoDiaMes),
+      situacao: new FormControl('TODAS')
+    });
+
+    this.filterForm.valueChanges.subscribe(() => {
+      this.applyFilters();
+    });
+  }
+
+  loadTodasAsContas(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    if (!this.authService.getToken()) {
+      this.isLoading = false;
+      this.error = 'Não foi possível carregar as contas: Token de autenticação ausente ou inválido.';
+      this.authService.logout();
+      this.router.navigate(['/login']);
+      return;
     }
+
+    this.apiService.getContas().subscribe({
+      next: (data) => {
+        this.todasAsContas = data;
+
+        this.contasEmAberto = data.filter(conta => conta.situacao === 'PENDENTE' || conta.situacao === 'EM_ABERTO');
+        this.contasPagas = data.filter(conta => conta.situacao === 'QUITADA' || conta.situacao === 'PAGO');
+
+        if (this.moradorLogadoId) {
+          this.contasDoMoradorLogadoSemFiltro = data.filter(conta =>
+            conta.responsavelId === this.moradorLogadoId ||
+            conta.rateios.some(rateio => rateio.moradorId === this.moradorLogadoId)
+          );
+
+          this.contasDoMoradorLogadoBase = [...this.contasDoMoradorLogadoSemFiltro];
+          this.applyFilters();
+        } else {
+          this.contasDoMoradorLogadoSemFiltro = [];
+          this.contasDoMoradorLogadoBase = [];
+          this.filteredMinhasContas = [];
+        }
+
+        this.isLoading = false;
+      },
+      error: (err: HttpErrorResponse) => {
+        this.error = 'Falha ao carregar as contas.';
+        this.isLoading = false;
+        if (err.status === 401 || err.status === 403) {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }
+      }
+    });
   }
 
-  // Getter para calcular o total das contas em aberto
-  get totalAberto(): number {
-    return this.contasAbertas.reduce((acc, conta) => acc + conta.valor, 0);
+  applyFilters(): void {
+    const { dataInicio, dataFim, situacao } = this.filterForm.value;
+    let tempContas = [...this.contasDoMoradorLogadoBase];
+
+    if (dataInicio) {
+      const inicio = new Date(dataInicio);
+      tempContas = tempContas.filter(conta => new Date(conta.dataVencimento) >= inicio);
+    }
+    if (dataFim) {
+      const fim = new Date(dataFim);
+      tempContas = tempContas.filter(conta => new Date(conta.dataVencimento) <= fim);
+    }
+
+    if (situacao && situacao !== 'TODAS') {
+      tempContas = tempContas.filter(conta => conta.situacao === situacao);
+    }
+
+    this.filteredMinhasContas = tempContas;
   }
 
-  // Método para navegar para a tela de edição de conta
+  limparFiltros(): void {
+    this.filterForm.reset({
+      dataInicio: null,
+      dataFim: null,
+      situacao: 'TODAS'
+    });
+    // Após reset, a função applyFilters() será chamada pelo valueChanges do formulário
+    // Para garantir que todas as contas do morador apareçam:
+    this.contasDoMoradorLogadoBase = [...this.todasAsContas];
+    this.filteredMinhasContas = [...this.todasAsContas];
+
+  }
+
+  mostrarConta(contaId: number): void {
+    this.router.navigate(['/mostrar-conta', contaId]);
+  }
+
   editConta(contaId: number): void {
-    this.router.navigate(['/conta', contaId]); // Navega para a rota de edição de conta com o ID
+    this.router.navigate(['/conta', contaId]);
   }
 
-  // Lida com a ação do botão primário do navegador (Ex: Nova Conta)
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
   handlePrimaryNav(): void {
-    this.router.navigate(['/conta']); // Navega para a rota de criação de conta
+    this.logout();
   }
 
-  // Lida com a ação do botão secundário do navegador (Ex: Meu Perfil)
   handleSecondaryNav(): void {
-    this.router.navigate(['/meuperfil']); // Navega para a rota do perfil do usuário
+    this.router.navigate(['/meuperfil']);
   }
 }

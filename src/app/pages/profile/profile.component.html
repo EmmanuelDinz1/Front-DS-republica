@@ -1,80 +1,135 @@
-<!-- src/app/pages/profile/profile.component.html -->
-
 <app-navegador
-  [title2]="'Olá, ' + nomeUsuario"
-  primaryBtnText="Nova Conta"
-  secondaryBtnText="Meu Perfil"
-  (submitAction)="handlePrimaryNav()"
-  (navigateAction)="handleSecondaryNav()"
-></app-navegador>  <div class="page-content">
-  </div>
+    [title2]="'Olá, ' + nomeUsuario"
+    primaryBtnText="Sair"
+    secondaryBtnText="Meu Perfil"
+    (submitAction)="handlePrimaryNav()"
+    (navigateAction)="handleSecondaryNav()"
+    [disablePrimaryBtn]="false"
+></app-navegador>
 
 <div class="page-content">
-  <div *ngIf="isLoading" class="loading-state">
-    <p>Carregando dados do dashboard...</p>
-  </div>
-
-  <div *ngIf="error" class="error-state">
-    <p>{{ error }}</p>
-  </div>
-
-  <div *ngIf="!isLoading && !error">
-    <h2 class="section-title text-center">Visão Geral</h2>
-    <div class="cards-container">
-      <app-cards class="card-item">
-        <h3 class="card-title">Total em Aberto</h3>
-        <p class="card-value-danger">{{ totalAberto | currency:'BRL' }}</p>
-      </app-cards>
-      <app-cards class="card-item">
-        <h3 class="card-title">Contas Abertas</h3>
-        <p class="card-value">{{ contasAbertas.length }}</p>
-      </app-cards>
+    <div *ngIf="isLoading" class="loading-state">
+        <p>Carregando dados do dashboard...</p>
     </div>
 
-    <h2 class="section-title text-center">Ações Rápidas</h2>
-    <div class="quick-actions-container">
-        <button class="btn-action" [routerLink]="'/conta'">
-            <span>Adicionar Nova Conta</span>
-        </button>
-        <button class="btn-action" [routerLink]="'/meuextrato'">
-            <span>Ver Extrato Completo</span>
-        </button>
-        <button class="btn-action" [routerLink]="'/SaldoComponent'">
-            <span>Ver Saldos Moradores</span>
-        </button>
+    <div *ngIf="error" class="error-state">
+        <p>{{ error }}</p>
     </div>
-
-    <h2 class="section-title text-center">Contas Pendentes</h2>
-    <div class="table-container">
-      <div *ngIf="contasAbertas.length > 0; else noContas">
-        <table>
-          <thead>
-            <tr>
-              <th>Tipo</th>
-              <th>Observação</th>
-              <th>Vencimento</th>
-              <th>Valor</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let conta of contasAbertas">
-              <td>{{ conta.tipoConta?.descricao }}</td>
-              <td>{{ conta.observacao }}</td>
-              <td>{{ conta.dataVencimento | date:'dd/MM/yyyy' }}</td>
-              <td class="valor">{{ conta.valor | currency:'BRL' }}</td>
-              <td>
-                <button (click)="editConta(conta.id)" class="btn-edit" title="Editar Conta">
-                  <span>Editar</span>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <ng-template #noContas>
-        <p class="empty-state">Nenhuma conta pendente. Bom trabalho!</p>
-      </ng-template>
-    </div>
-  </div>
+<h2 class="section-title text-center">Todas as Contas Que Estou Incluído</h2>
+<div class="table-container" *ngIf="contasDoMoradorLogadoSemFiltro.length > 0; else noContasIncluidas">
+  <table>
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Observação</th>
+        <th>Vencimento</th>
+        <th>Valor</th>
+        <th>Situação</th>
+        <th>Responsável</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let conta of contasDoMoradorLogadoSemFiltro">
+        <td>{{ conta.tipoContaDescricao }}</td>
+        <td>{{ conta.observacao }}</td>
+        <td>{{ conta.dataVencimento | date:'dd/MM/yyyy' }}</td>
+        <td class="valor">{{ conta.valor | currency:'BRL' }}</td>
+        <td>
+          <span [ngClass]="{'status-quitada': conta.situacao === 'QUITADA' || conta.situacao === 'PAGO', 'status-pendente': conta.situacao !== 'QUITADA' && conta.situacao !== 'PAGO'}">
+            <ng-container *ngIf="conta.situacao === 'QUITADA' || conta.situacao === 'PAGO'">✔ Paga</ng-container>
+            <ng-container *ngIf="conta.situacao !== 'QUITADA' && conta.situacao !== 'PAGO'">✖ Não Paga</ng-container>
+          </span>
+        </td>
+        <td>{{ conta.responsavelNome }}</td>
+        <td>
+          <button (click)="mostrarConta(conta.id)" class="btn-details" title="Ver Detalhes">
+            <span>Detalhes</span>
+          </button>
+          <button (click)="editConta(conta.id)" class="btn-edit" title="Editar Conta">
+            <span>Editar</span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
+<ng-template #noContasIncluidas>
+  <p class="empty-state">Você não está incluído em nenhuma conta.</p>
+</ng-template>
+
+        <h2 class="section-title text-center">Ações Rápidas</h2>
+        <div class="quick-actions-container">
+            <button class="btn-action" [routerLink]="'/conta'">
+                <span>Adicionar Nova Conta</span>
+            </button>
+            <button class="btn-action" [routerLink]="'/saldos'">
+                <span>Ver Saldos Moradores</span>
+            </button>
+        </div>
+
+        <h2 class="section-title text-center">Todas as Contas</h2>
+        <form [formGroup]="filterForm" class="filters-form">
+            <div class="form-group-inline">
+                <label for="dataInicio">Data Início</label>
+                <input id="dataInicio" type="date" formControlName="dataInicio" class="form-control" />
+            </div>
+            <div class="form-group-inline">
+                <label for="dataFim">Data Término</label>
+                <input id="dataFim" type="date" formControlName="dataFim" class="form-control" />
+            </div>
+            <div class="form-group-inline">
+                <label for="situacao">Situação</label>
+                <select id="situacao" formControlName="situacao" class="form-control">
+                    <option *ngFor="let s of situacoes" [ngValue]="s">{{ s }}</option>
+                </select>
+            </div>
+            <button type="button" class="btn-secondary" (click)="limparFiltros()">Limpar Filtros</button>
+            <button type="button" class="btn-primary" (click)="applyFilters()">Aplicar Filtros</button>
+        </form>
+
+        <div class="table-container">
+            <div *ngIf="filteredMinhasContas.length > 0; else noMinhasContas">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Observação</th>
+                            <th>Vencimento</th>
+                            <th>Valor</th>
+                            <th>Situação</th>
+                            <th>Responsável</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let conta of filteredMinhasContas">
+                            <td>{{ conta.tipoContaDescricao }}</td>
+                            <td>{{ conta.observacao }}</td>
+                            <td>{{ conta.dataVencimento | date:'dd/MM/yyyy' }}</td>
+                            <td class="valor">{{ conta.valor | currency:'BRL' }}</td>
+                            <td>
+                                <span [ngClass]="{'status-quitada': conta.situacao === 'QUITADA' || conta.situacao === 'PAGO', 'status-pendente': conta.situacao !== 'QUITADA' && conta.situacao !== 'PAGO'}">
+                                    <ng-container *ngIf="conta.situacao === 'QUITADA' || conta.situacao === 'PAGO'">✔ Paga</ng-container>
+                                    <ng-container *ngIf="conta.situacao !== 'QUITADA' && conta.situacao !== 'PAGO'">✖ Não Paga</ng-container>
+                                </span>
+                            </td>
+                            <td>{{ conta.responsavelNome }}</td>
+                            <td>
+                                <button (click)="mostrarConta(conta.id)" class="btn-details" title="Ver Detalhes">
+                                    <span>Detalhes</span>
+                                </button>
+                                <button (click)="editConta(conta.id)" class="btn-edit" title="Editar Conta">
+                                    <span>Editar</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <ng-template #noMinhasContas>
+                <p class="empty-state">Nenhuma conta encontrada para os filtros selecionados.</p>
+            </ng-template>
+        </div>
+
+        </div>
